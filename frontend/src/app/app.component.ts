@@ -10,19 +10,15 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ReactiveFormsModule, CommonModule],
+  imports: [],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   standalone: true,
 })
 export class AppComponent implements OnInit {
-  title = 'frontend';
-  registrationForm!: FormGroup;
+  title = 'Zyppi';
 
-  constructor(private fb: FormBuilder) {}
+  constructor() {}
 
-  ngOnInit(): void {
-   
-  }
-
+  ngOnInit(): void {}
 }
