@@ -1,4 +1,4 @@
-### [coreui-free-angular-admin-template](https://coreui.io/angular/) changelog
+<!-- ### [coreui-free-angular-admin-template](https://coreui.io/angular/) changelog
 
 
 ---
@@ -266,4 +266,4 @@ refactor:
 
 - refactor(AppComponent): change selector to `app-root`
 
----
+--- -->
