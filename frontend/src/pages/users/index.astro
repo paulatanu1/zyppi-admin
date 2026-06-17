@@ -1,23 +1,15 @@
 ---
 import '../../styles/globals.css';
+import UsersPage from '../../entries/UsersPage';
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Users — Zyppi Admin</title>
 </head>
 <body class="bg-gray-50">
-  <div id="app-root"></div>
-  <script>
-    import { createRoot } from 'react-dom/client';
-    import { createElement } from 'react';
-    import { AdminShell } from '../../components/layout/AdminShell';
-    import { UsersShell } from '../../features/users/UsersShell';
-    createRoot(document.getElementById('app-root')!).render(
-      createElement(AdminShell, { title: 'Users', subtitle: 'Manage riders and drivers', currentPath: '/users' },
-        createElement(UsersShell))
-    );
-  </script>
+  <UsersPage client:only="react" />
 </body>
 </html>

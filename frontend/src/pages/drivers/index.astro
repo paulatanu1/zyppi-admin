@@ -1,23 +1,15 @@
 ---
 import '../../styles/globals.css';
+import DriversPage from '../../entries/DriversPage';
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Live Drivers — Zyppi Admin</title>
 </head>
 <body class="bg-gray-50">
-  <div id="app-root"></div>
-  <script>
-    import { createRoot } from 'react-dom/client';
-    import { createElement } from 'react';
-    import { AdminShell } from '../../components/layout/AdminShell';
-    import { DriversMapShell } from '../../features/drivers/DriversMapShell';
-    createRoot(document.getElementById('app-root')!).render(
-      createElement(AdminShell, { title: 'Live Drivers', subtitle: 'Real-time driver locations', currentPath: '/drivers' },
-        createElement(DriversMapShell))
-    );
-  </script>
+  <DriversPage client:only="react" />
 </body>
 </html>

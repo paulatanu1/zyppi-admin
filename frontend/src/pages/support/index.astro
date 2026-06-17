@@ -1,23 +1,15 @@
 ---
 import '../../styles/globals.css';
+import SupportPage from '../../entries/SupportPage';
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Support — Zyppi Admin</title>
 </head>
 <body class="bg-gray-50">
-  <div id="app-root"></div>
-  <script>
-    import { createRoot } from 'react-dom/client';
-    import { createElement } from 'react';
-    import { AdminShell } from '../../components/layout/AdminShell';
-    import { SupportShell } from '../../features/support/SupportShell';
-    createRoot(document.getElementById('app-root')!).render(
-      createElement(AdminShell, { title: 'Support Center', subtitle: 'Complaints and user feedback', currentPath: '/support' },
-        createElement(SupportShell))
-    );
-  </script>
+  <SupportPage client:only="react" />
 </body>
 </html>

@@ -1,5 +1,6 @@
 ---
 import '../styles/globals.css';
+import DashboardPage from '../entries/DashboardPage';
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -9,20 +10,6 @@ import '../styles/globals.css';
   <title>Dashboard — Zyppi Admin</title>
 </head>
 <body class="bg-gray-50">
-  <div id="app-root"></div>
-  <script>
-    import { createRoot } from 'react-dom/client';
-    import { createElement } from 'react';
-    import { AdminShell } from '../components/layout/AdminShell';
-    import { DashboardShell } from '../features/dashboard/DashboardShell';
-
-    createRoot(document.getElementById('app-root')!).render(
-      createElement(AdminShell, {
-        title: 'Dashboard',
-        subtitle: 'Overview of Zyppi Ride operations',
-        currentPath: '/',
-      }, createElement(DashboardShell))
-    );
-  </script>
+  <DashboardPage client:only="react" />
 </body>
 </html>

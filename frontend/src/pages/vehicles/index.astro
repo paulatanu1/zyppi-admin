@@ -1,23 +1,15 @@
 ---
 import '../../styles/globals.css';
+import VehiclesPage from '../../entries/VehiclesPage';
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vehicles — Zyppi Admin</title>
 </head>
 <body class="bg-gray-50">
-  <div id="app-root"></div>
-  <script>
-    import { createRoot } from 'react-dom/client';
-    import { createElement } from 'react';
-    import { AdminShell } from '../../components/layout/AdminShell';
-    import { VehiclesShell } from '../../features/vehicles/VehiclesShell';
-    createRoot(document.getElementById('app-root')!).render(
-      createElement(AdminShell, { title: 'Vehicles', subtitle: 'Vehicle approvals and management', currentPath: '/vehicles' },
-        createElement(VehiclesShell))
-    );
-  </script>
+  <VehiclesPage client:only="react" />
 </body>
 </html>
