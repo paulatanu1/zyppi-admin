@@ -5,6 +5,13 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# Force HTTPS
+[[redirects]]
+  from = "http://zyppi.in/*"
+  to = "https://zyppi.in/:splat"
+  status = 301
+  force = true
+
 # 404 fallback for any unmatched routes
 [[redirects]]
   from = "/*"
