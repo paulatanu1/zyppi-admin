@@ -1,0 +1,20 @@
+---
+import '../styles/globals.css';
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zyppi Admin — Sign In</title>
+</head>
+<body>
+  <div id="login-root"></div>
+  <script>
+    import { createRoot } from 'react-dom/client';
+    import { createElement } from 'react';
+    import { LoginForm } from '../features/auth/LoginForm';
+    createRoot(document.getElementById('login-root')!).render(createElement(LoginForm));
+  </script>
+</body>
+</html>

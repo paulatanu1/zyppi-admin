@@ -1,0 +1,28 @@
+---
+import '../styles/globals.css';
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Zyppi Admin</title>
+</head>
+<body class="bg-gray-50">
+  <div id="app-root"></div>
+  <script>
+    import { createRoot } from 'react-dom/client';
+    import { createElement } from 'react';
+    import { AdminShell } from '../components/layout/AdminShell';
+    import { DashboardShell } from '../features/dashboard/DashboardShell';
+
+    createRoot(document.getElementById('app-root')!).render(
+      createElement(AdminShell, {
+        title: 'Dashboard',
+        subtitle: 'Overview of Zyppi Ride operations',
+        currentPath: '/',
+      }, createElement(DashboardShell))
+    );
+  </script>
+</body>
+</html>
