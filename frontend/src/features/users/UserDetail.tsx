@@ -5,9 +5,10 @@ import { db } from '@/lib/firebase/client';
 import { COLLECTIONS } from '@/lib/firebase/collections';
 import { SlideOver, DetailField, DetailSection } from '@/components/shared/SlideOver';
 import { VerificationBadge, BookingStatusBadge } from '@/components/shared/StatusBadge';
-import { formatDate, formatDateTime, formatCurrency, timeAgo } from '@/lib/utils/formatters';
-import type { UserModel, BookingModel, BookingStatus } from '@/lib/types';
-import { CheckCircle, XCircle, Mail, Phone, Calendar, Shield } from 'lucide-react';
+import { DocumentViewer } from '@/components/shared/DocumentViewer';
+import { formatDate, formatCurrency, timeAgo } from '@/lib/utils/formatters';
+import type { UserModel, BookingModel, VehicleModel, BookingStatus } from '@/lib/types';
+import { CheckCircle, XCircle, Mail, Phone, Calendar, Shield, Car } from 'lucide-react';
 
 interface Props {
   user: UserModel | null;
@@ -16,6 +17,17 @@ interface Props {
 
 export function UserDetail({ user, onClose }: Props) {
   const qc = useQueryClient();
+
+  const { data: vehicles = [] } = useQuery({
+    queryKey: ['user-vehicles', user?.userId],
+    enabled: !!user,
+    queryFn: async () => {
+      const snap = await getDocs(
+        query(collection(db, COLLECTIONS.vehicles), where('userId', '==', user!.userId))
+      );
+      return snap.docs.map(d => ({ vehicleId: d.id, ...d.data() } as VehicleModel & { documents?: any }));
+    },
+  });
 
   const { data: bookings = [] } = useQuery({
     queryKey: ['user-bookings', user?.userId],
@@ -148,6 +160,31 @@ export function UserDetail({ user, onClose }: Props) {
                   )}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Vehicles & Documents */}
+          {vehicles.length > 0 && (
+            <div className="border-b border-gray-100">
+              {vehicles.map((v: any) => (
+                <div key={v.vehicleId} className="px-6 py-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Car className="h-4 w-4 text-gray-400" />
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                      {v.vehicleDetails?.brand} {v.vehicleDetails?.model}
+                      <span className="ml-2 font-mono text-gray-300">{v.vehicleDetails?.registrationNumber}</span>
+                    </p>
+                    <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-medium capitalize
+                      ${v.documentStatus === 'approved' ? 'bg-green-100 text-green-700' :
+                        v.documentStatus === 'submitted' ? 'bg-blue-100 text-blue-700' :
+                        v.documentStatus === 'rejected' ? 'bg-red-100 text-red-700' :
+                        'bg-gray-100 text-gray-600'}`}>
+                      {v.documentStatus ?? 'pending'}
+                    </span>
+                  </div>
+                  <DocumentViewer documents={v.documents} />
+                </div>
+              ))}
             </div>
           )}
 

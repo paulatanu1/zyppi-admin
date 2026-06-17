@@ -8,6 +8,7 @@ import { VerificationBadge, OnlineBadge } from '@/components/shared/StatusBadge'
 import { formatDate } from '@/lib/utils/formatters';
 import type { VehicleModel } from '@/lib/types';
 import { CheckCircle, XCircle } from 'lucide-react';
+import { VehicleDetail } from './VehicleDetail';
 
 async function fetchVehicles(): Promise<VehicleModel[]> {
   const snap = await getDocs(collection(db, COLLECTIONS.vehicles));
@@ -18,6 +19,7 @@ async function fetchVehicles(): Promise<VehicleModel[]> {
 export function VehiclesShell() {
   const [search, setSearch] = useState('');
   const [docFilter, setDocFilter] = useState('all');
+  const [selected, setSelected] = useState<VehicleModel | null>(null);
   const qc = useQueryClient();
 
   const { data = [], isLoading } = useQuery({ queryKey: ['vehicles'], queryFn: fetchVehicles });
@@ -73,16 +75,20 @@ export function VehiclesShell() {
         <div className="flex items-center gap-1">
           {v.documentStatus === 'submitted' && (
             <>
-              <button onClick={() => updateDocStatus.mutate({ id: v.vehicleId, status: 'approved' })}
+              <button onClick={e => { e.stopPropagation(); updateDocStatus.mutate({ id: v.vehicleId, status: 'approved' }); }}
                 className="rounded p-1 text-green-600 hover:bg-green-50 transition-colors" title="Approve docs">
                 <CheckCircle className="h-4 w-4" />
               </button>
-              <button onClick={() => updateDocStatus.mutate({ id: v.vehicleId, status: 'rejected' })}
+              <button onClick={e => { e.stopPropagation(); updateDocStatus.mutate({ id: v.vehicleId, status: 'rejected' }); }}
                 className="rounded p-1 text-red-500 hover:bg-red-50 transition-colors" title="Reject docs">
                 <XCircle className="h-4 w-4" />
               </button>
             </>
           )}
+          <button onClick={e => { e.stopPropagation(); setSelected(v); }}
+            className="rounded px-2 py-1 text-xs text-indigo-600 hover:bg-indigo-50 font-medium transition-colors">
+            View →
+          </button>
         </div>
       ),
     },
@@ -111,7 +117,10 @@ export function VehiclesShell() {
         searchValue={search}
         rowKey={v => v.vehicleId}
         emptyText="No vehicles found"
+        onRowClick={setSelected}
       />
+
+      <VehicleDetail vehicle={selected as any} onClose={() => setSelected(null)} />
     </div>
   );
 }
