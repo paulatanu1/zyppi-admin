@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { collection, getDocs, doc, updateDoc, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { COLLECTIONS } from '@/lib/firebase/collections';
 import { DataTable, type Column } from '@/components/shared/DataTable';
@@ -10,8 +10,9 @@ import type { VehicleModel } from '@/lib/types';
 import { CheckCircle, XCircle } from 'lucide-react';
 
 async function fetchVehicles(): Promise<VehicleModel[]> {
-  const snap = await getDocs(query(collection(db, COLLECTIONS.vehicles), orderBy('createdAt', 'desc')));
-  return snap.docs.map(d => ({ vehicleId: d.id, ...d.data() } as VehicleModel));
+  const snap = await getDocs(collection(db, COLLECTIONS.vehicles));
+  return snap.docs.map(d => ({ vehicleId: d.id, ...d.data() } as VehicleModel))
+    .sort((a, b) => (b.createdAt?.toMillis() ?? 0) - (a.createdAt?.toMillis() ?? 0));
 }
 
 export function VehiclesShell() {

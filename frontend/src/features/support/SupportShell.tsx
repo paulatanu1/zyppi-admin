@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { COLLECTIONS } from '@/lib/firebase/collections';
 import { DataTable, type Column } from '@/components/shared/DataTable';
@@ -19,8 +19,9 @@ function ComplaintsTab() {
   const { data = [], isLoading } = useQuery({
     queryKey: ['complaints'],
     queryFn: async () => {
-      const snap = await getDocs(query(collection(db, COLLECTIONS.complaints), orderBy('createdAt', 'desc')));
-      return snap.docs.map(d => ({ id: d.id, ...d.data() } as ComplaintModel));
+      const snap = await getDocs(collection(db, COLLECTIONS.complaints));
+      return snap.docs.map(d => ({ id: d.id, ...d.data() } as ComplaintModel))
+        .sort((a, b) => (b.createdAt?.toMillis() ?? 0) - (a.createdAt?.toMillis() ?? 0));
     },
   });
 
@@ -69,8 +70,9 @@ function FeedbacksTab() {
   const { data = [], isLoading } = useQuery({
     queryKey: ['feedbacks'],
     queryFn: async () => {
-      const snap = await getDocs(query(collection(db, COLLECTIONS.feedbacks), orderBy('createdAt', 'desc')));
-      return snap.docs.map(d => ({ id: d.id, ...d.data() } as FeedbackModel));
+      const snap = await getDocs(collection(db, COLLECTIONS.feedbacks));
+      return snap.docs.map(d => ({ id: d.id, ...d.data() } as FeedbackModel))
+        .sort((a, b) => (b.createdAt?.toMillis() ?? 0) - (a.createdAt?.toMillis() ?? 0));
     },
   });
 

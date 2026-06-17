@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { COLLECTIONS } from '@/lib/firebase/collections';
 import { DataTable, type Column } from '@/components/shared/DataTable';
@@ -18,8 +18,9 @@ const STATUS_OPTIONS: { label: string; value: string }[] = [
 ];
 
 async function fetchBookings(): Promise<BookingModel[]> {
-  const snap = await getDocs(query(collection(db, COLLECTIONS.bookings), orderBy('createdAt', 'desc')));
-  return snap.docs.map(d => ({ bookingId: d.id, ...d.data() } as BookingModel));
+  const snap = await getDocs(collection(db, COLLECTIONS.bookings));
+  return snap.docs.map(d => ({ bookingId: d.id, ...d.data() } as BookingModel))
+    .sort((a, b) => (b.createdAt?.toMillis() ?? 0) - (a.createdAt?.toMillis() ?? 0));
 }
 
 export function BookingsShell() {

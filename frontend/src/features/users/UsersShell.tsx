@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { collection, getDocs, doc, updateDoc, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { COLLECTIONS } from '@/lib/firebase/collections';
 import { DataTable, type Column } from '@/components/shared/DataTable';
@@ -10,8 +10,9 @@ import type { UserModel } from '@/lib/types';
 import { CheckCircle, XCircle, MoreVertical } from 'lucide-react';
 
 async function fetchUsers(): Promise<UserModel[]> {
-  const snap = await getDocs(query(collection(db, COLLECTIONS.users), orderBy('createdAt', 'desc')));
-  return snap.docs.map(d => ({ userId: d.id, ...d.data() } as UserModel));
+  const snap = await getDocs(collection(db, COLLECTIONS.users));
+  return snap.docs.map(d => ({ userId: d.id, ...d.data() } as UserModel))
+    .sort((a, b) => (b.createdAt?.toMillis() ?? 0) - (a.createdAt?.toMillis() ?? 0));
 }
 
 export function UsersShell() {
