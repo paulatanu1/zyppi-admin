@@ -7,7 +7,8 @@ import { DataTable, type Column } from '@/components/shared/DataTable';
 import { VerificationBadge } from '@/components/shared/StatusBadge';
 import { formatDate, timeAgo } from '@/lib/utils/formatters';
 import type { UserModel } from '@/lib/types';
-import { CheckCircle, XCircle, MoreVertical } from 'lucide-react';
+import { CheckCircle, XCircle } from 'lucide-react';
+import { UserDetail } from './UserDetail';
 
 async function fetchUsers(): Promise<UserModel[]> {
   const snap = await getDocs(collection(db, COLLECTIONS.users));
@@ -18,6 +19,7 @@ async function fetchUsers(): Promise<UserModel[]> {
 export function UsersShell() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selected, setSelected] = useState<UserModel | null>(null);
   const qc = useQueryClient();
 
   const { data = [], isLoading } = useQuery({ queryKey: ['users'], queryFn: fetchUsers });
@@ -67,17 +69,22 @@ export function UsersShell() {
           {u.verificationStatus === 'submitted' && (
             <>
               <button
-                onClick={() => updateVerification.mutate({ uid: u.userId, status: 'approved' })}
+                onClick={e => { e.stopPropagation(); updateVerification.mutate({ uid: u.userId, status: 'approved' }); }}
                 className="rounded p-1 text-green-600 hover:bg-green-50 transition-colors" title="Approve">
                 <CheckCircle className="h-4 w-4" />
               </button>
               <button
-                onClick={() => updateVerification.mutate({ uid: u.userId, status: 'rejected' })}
+                onClick={e => { e.stopPropagation(); updateVerification.mutate({ uid: u.userId, status: 'rejected' }); }}
                 className="rounded p-1 text-red-500 hover:bg-red-50 transition-colors" title="Reject">
                 <XCircle className="h-4 w-4" />
               </button>
             </>
           )}
+          <button
+            onClick={e => { e.stopPropagation(); setSelected(u); }}
+            className="rounded px-2 py-1 text-xs text-indigo-600 hover:bg-indigo-50 font-medium transition-colors">
+            View →
+          </button>
         </div>
       ),
     },
@@ -107,7 +114,10 @@ export function UsersShell() {
         searchValue={search}
         rowKey={u => u.userId}
         emptyText="No users found"
+        onRowClick={setSelected}
       />
+
+      <UserDetail user={selected} onClose={() => setSelected(null)} />
     </div>
   );
 }

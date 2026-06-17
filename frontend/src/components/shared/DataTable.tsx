@@ -20,11 +20,12 @@ interface DataTableProps<T> {
   actions?: React.ReactNode;
   emptyText?: string;
   rowKey: (row: T) => string;
+  onRowClick?: (row: T) => void;
 }
 
 export function DataTable<T>({
   data, columns, loading, searchPlaceholder, onSearch, searchValue = '',
-  pageSize = 15, actions, emptyText = 'No data found', rowKey,
+  pageSize = 15, actions, emptyText = 'No data found', rowKey, onRowClick,
 }: DataTableProps<T>) {
   const [page, setPage] = useState(1);
   const total = data.length;
@@ -79,7 +80,9 @@ export function DataTable<T>({
               </tr>
             ) : (
               paginated.map(row => (
-                <tr key={rowKey(row)} className="hover:bg-gray-50/80 transition-colors">
+                <tr key={rowKey(row)}
+                  className={cn('hover:bg-gray-50/80 transition-colors', onRowClick && 'cursor-pointer')}
+                  onClick={() => onRowClick?.(row)}>
                   {columns.map(col => (
                     <td key={col.key} className={cn('px-4 py-3 text-gray-700', col.className)}>
                       {col.render(row)}
