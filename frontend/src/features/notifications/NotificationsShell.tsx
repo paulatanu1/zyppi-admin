@@ -9,7 +9,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { formatDateTime } from '@/lib/utils/formatters';
 import { cn } from '@/lib/utils/cn';
 import type { AdminNotification, NotificationTarget } from '@/lib/types';
-import { Send, Clock, CheckCircle, XCircle, Trash2, Bell, Users, Tag, Smartphone, Copy, ChevronRight } from 'lucide-react';
+import { Send, Clock, CheckCircle, XCircle, Trash2, Bell, Users, Tag, Smartphone, Copy, ChevronRight, Loader2 } from 'lucide-react';
 
 // ── Built-in templates ────────────────────────────────────────────────────────
 const BUILT_IN_TEMPLATES = [
@@ -139,7 +139,7 @@ function ComposeTab() {
   const [token, setToken] = useState('');
   const [targetUserName, setTargetUserName] = useState('');
   const [dataFields, setDataFields] = useState<{ key: string; value: string }[]>([]);
-  const [sent, setSent] = useState(false);
+  const [sendMsg, setSendMsg] = useState('');
 
   const sendNotification = useMutation({
     mutationFn: () => addDoc(collection(db, COLLECTIONS.adminNotifications), {
@@ -159,8 +159,12 @@ function ComposeTab() {
     }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-notifications'] });
-      setSent(true);
-      setTimeout(() => setSent(false), 3000);
+      setSendMsg('✅ Queued successfully — Cloud Function will deliver shortly');
+      setTimeout(() => setSendMsg(''), 4000);
+    },
+    onError: (err: any) => {
+      setSendMsg(`❌ ${err?.message ?? 'Failed to queue — check Firestore rules'}`);
+      setTimeout(() => setSendMsg(''), 5000);
     },
   });
 
@@ -349,8 +353,11 @@ function ComposeTab() {
             <Send className="h-4 w-4" />
             {sendNotification.isPending ? 'Queuing...' : 'Send Notification'}
           </button>
-          {sent && <span className="text-sm text-green-600 font-medium">✓ Queued successfully</span>}
-          {sendNotification.isError && <span className="text-sm text-red-600">Failed to queue — check Firestore rules</span>}
+          {sendMsg && (
+            <span className={`text-sm font-medium ${sendMsg.startsWith('❌') ? 'text-red-600' : 'text-green-600'}`}>
+              {sendMsg}
+            </span>
+          )}
         </div>
       </div>
 
@@ -376,9 +383,19 @@ function HistoryTab() {
     },
   });
 
+  const [deleteMsg, setDeleteMsg] = useState('');
+
   const deleteNotif = useMutation({
     mutationFn: (id: string) => deleteDoc(doc(db, COLLECTIONS.adminNotifications, id)),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-notifications'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-notifications'] });
+      setDeleteMsg('🗑 Record deleted');
+      setTimeout(() => setDeleteMsg(''), 2500);
+    },
+    onError: (err: any) => {
+      setDeleteMsg(`❌ ${err?.message ?? 'Failed to delete'}`);
+      setTimeout(() => setDeleteMsg(''), 3000);
+    },
   });
 
   const TARGET_LABELS: Record<string, string> = {
@@ -397,6 +414,7 @@ function HistoryTab() {
 
   return (
     <div className="space-y-3">
+      {deleteMsg && <p className="text-xs font-medium text-gray-700 bg-gray-50 rounded-lg px-3 py-2">{deleteMsg}</p>}
       {notifications.map(n => (
         <div key={n.id} className="flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-4">
           <div className="flex-1 min-w-0">
@@ -420,9 +438,10 @@ function HistoryTab() {
           </div>
           <button
             onClick={() => { if (confirm('Delete this notification record?')) deleteNotif.mutate(n.id); }}
-            className="shrink-0 rounded-lg p-1.5 text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+            disabled={deleteNotif.isPending}
+            className="shrink-0 rounded-lg p-1.5 text-gray-300 hover:text-red-400 hover:bg-red-50 disabled:opacity-50 transition-colors"
           >
-            <Trash2 className="h-4 w-4" />
+            {deleteNotif.isPending ? <Loader2 className="h-4 w-4 animate-spin text-red-400" /> : <Trash2 className="h-4 w-4" />}
           </button>
         </div>
       ))}

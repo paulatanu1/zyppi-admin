@@ -9,7 +9,7 @@ import { DataTable, type Column } from '@/components/shared/DataTable';
 import { VerificationBadge, OnlineBadge } from '@/components/shared/StatusBadge';
 import { formatDate } from '@/lib/utils/formatters';
 import type { VehicleModel } from '@/lib/types';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { VehicleDetail } from './VehicleDetail';
 
 async function fetchVehicles(): Promise<VehicleModel[]> {
@@ -32,10 +32,20 @@ export function VehiclesShell() {
     return <FetchPaused onEnable={() => update('fetchVehicles', true)} />;
   }
 
+  const [docResult, setDocResult] = useState<{ id: string; label: string } | null>(null);
+
   const updateDocStatus = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
       updateDoc(doc(db, COLLECTIONS.vehicles, id), { documentStatus: status }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['vehicles'] }),
+    onSuccess: (_d, { id, status }) => {
+      qc.invalidateQueries({ queryKey: ['vehicles'] });
+      setDocResult({ id, label: status === 'approved' ? '✅ Approved' : '❌ Rejected' });
+      setTimeout(() => setDocResult(null), 2500);
+    },
+    onError: (err: any, { id }) => {
+      setDocResult({ id, label: `⚠️ ${err?.message ?? 'Failed'}` });
+      setTimeout(() => setDocResult(null), 3000);
+    },
   });
 
   const filtered = data.filter(v => {
@@ -79,26 +89,35 @@ export function VehiclesShell() {
     { key: 'created', header: 'Registered', render: v => <span className="text-xs text-gray-500">{formatDate(v.createdAt)}</span> },
     {
       key: 'actions', header: '',
-      render: v => (
+      render: v => {
+        const isPending = updateDocStatus.isPending && updateDocStatus.variables?.id === v.vehicleId;
+        const result = docResult?.id === v.vehicleId ? docResult.label : null;
+        return (
         <div className="flex items-center gap-1">
-          {v.documentStatus === 'submitted' && (
+          {v.documentStatus === 'submitted' && !result && (
             <>
-              <button onClick={e => { e.stopPropagation(); updateDocStatus.mutate({ id: v.vehicleId, status: 'approved' }); }}
-                className="rounded p-1 text-green-600 hover:bg-green-50 transition-colors" title="Approve docs">
-                <CheckCircle className="h-4 w-4" />
+              <button
+                onClick={e => { e.stopPropagation(); updateDocStatus.mutate({ id: v.vehicleId, status: 'approved' }); }}
+                disabled={isPending}
+                className="rounded p-1 text-green-600 hover:bg-green-50 disabled:opacity-50 transition-colors" title="Approve docs">
+                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
               </button>
-              <button onClick={e => { e.stopPropagation(); updateDocStatus.mutate({ id: v.vehicleId, status: 'rejected' }); }}
-                className="rounded p-1 text-red-500 hover:bg-red-50 transition-colors" title="Reject docs">
-                <XCircle className="h-4 w-4" />
+              <button
+                onClick={e => { e.stopPropagation(); updateDocStatus.mutate({ id: v.vehicleId, status: 'rejected' }); }}
+                disabled={isPending}
+                className="rounded p-1 text-red-500 hover:bg-red-50 disabled:opacity-50 transition-colors" title="Reject docs">
+                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
               </button>
             </>
           )}
+          {result && <span className="text-[11px] font-medium text-gray-700">{result}</span>}
           <button onClick={e => { e.stopPropagation(); setSelectedId(v.vehicleId); }}
             className="rounded px-2 py-1 text-xs text-indigo-600 hover:bg-indigo-50 font-medium transition-colors">
             View →
           </button>
         </div>
-      ),
+        );
+      },
     },
   ];
 
