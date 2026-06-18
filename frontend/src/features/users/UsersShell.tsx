@@ -42,8 +42,8 @@ export function UsersShell() {
       setActionResult({ uid, label: status === 'approved' ? '✅ Approved' : '❌ Rejected' });
       setTimeout(() => setActionResult(null), 2500);
     },
-    onError: (_err, { uid }) => {
-      setActionResult({ uid, label: '⚠️ Failed' });
+    onError: (err: any, { uid }) => {
+      setActionResult({ uid, label: `⚠️ ${err?.message ?? 'Failed to update'}` });
       setTimeout(() => setActionResult(null), 2500);
     },
   });

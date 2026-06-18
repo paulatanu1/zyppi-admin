@@ -42,8 +42,8 @@ export function UserDetail({ user, onClose }: Props) {
       await updateDoc(doc(db, COLLECTIONS.users, user.userId), { mobile: trimmed });
       qc.invalidateQueries({ queryKey: ['users'] });
       setEditingMobile(false);
-    } catch {
-      setMobileError('Failed to update mobile number');
+    } catch (err: any) {
+      setMobileError(err?.message ?? 'Failed to update mobile number');
     } finally {
       setSavingMobile(false);
     }
@@ -95,9 +95,9 @@ export function UserDetail({ user, onClose }: Props) {
       setVerifyLabel(labels[status] ?? 'Updated');
       setTimeout(() => setVerifyLabel(''), 3000);
     },
-    onError: () => {
-      setVerifyLabel('Failed — try again');
-      setTimeout(() => setVerifyLabel(''), 3000);
+    onError: (err: any) => {
+      setVerifyLabel(`❌ ${err?.message ?? 'Failed — try again'}`);
+      setTimeout(() => setVerifyLabel(''), 4000);
     },
   });
 

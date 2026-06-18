@@ -27,9 +27,9 @@ export function VehicleDetail({ vehicle, onClose }: Props) {
       setSavedLabel(status === 'approved' ? 'Approved ✓' : 'Rejected ✓');
       setTimeout(() => setSavedLabel(''), 3000);
     },
-    onError: () => {
-      setSavedLabel('Failed — try again');
-      setTimeout(() => setSavedLabel(''), 3000);
+    onError: (err: any) => {
+      setSavedLabel(`❌ ${err?.message ?? 'Failed — try again'}`);
+      setTimeout(() => setSavedLabel(''), 4000);
     },
   });
 

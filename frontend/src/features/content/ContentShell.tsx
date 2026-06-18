@@ -36,13 +36,13 @@ function BannersTab() {
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
       updateDoc(doc(db, COLLECTIONS.banners, id), { isActive: !isActive }),
     onSuccess: (_d, { isActive }) => { qc.invalidateQueries({ queryKey: ['banners'] }); flash(isActive ? '⏸ Banner deactivated' : '✅ Banner activated'); },
-    onError: () => flash('❌ Failed to update'),
+    onError: (err: any) => flash(`❌ ${err?.message ?? 'Failed to update'}`),
   });
 
   const deleteBanner = useMutation({
     mutationFn: (id: string) => deleteDoc(doc(db, COLLECTIONS.banners, id)),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['banners'] }); flash('🗑 Banner deleted'); },
-    onError: () => flash('❌ Failed to delete'),
+    onError: (err: any) => flash(`❌ ${err?.message ?? 'Failed to delete'}`),
   });
 
   const filtered = data.filter(b => !search || b.title?.toLowerCase().includes(search.toLowerCase()));
@@ -129,20 +129,20 @@ function OffersTab() {
       setForm({ code: '', discount: '', minBookingAmount: '' });
       flashOffer('✅ Promo code created');
     },
-    onError: () => flashOffer('❌ Failed to create'),
+    onError: (err: any) => flashOffer(`❌ ${err?.message ?? 'Failed to create'}`),
   });
 
   const toggleActive = useMutation({
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
       updateDoc(doc(db, COLLECTIONS.offers, id), { isActive: !isActive }),
     onSuccess: (_d, { isActive }) => { qc.invalidateQueries({ queryKey: ['offers'] }); flashOffer(isActive ? '⏸ Offer deactivated' : '✅ Offer activated'); },
-    onError: () => flashOffer('❌ Failed to update'),
+    onError: (err: any) => flashOffer(`❌ ${err?.message ?? 'Failed to update'}`),
   });
 
   const deleteOffer = useMutation({
     mutationFn: (id: string) => deleteDoc(doc(db, COLLECTIONS.offers, id)),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['offers'] }); flashOffer('🗑 Offer deleted'); },
-    onError: () => flashOffer('❌ Failed to delete'),
+    onError: (err: any) => flashOffer(`❌ ${err?.message ?? 'Failed to delete'}`),
   });
 
   const filtered = data.filter(o => !search || o.code?.toLowerCase().includes(search.toLowerCase()));
