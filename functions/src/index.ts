@@ -18,11 +18,17 @@ export const sendAdminNotification = onDocumentCreated(
 
     const n = snap.data();
 
+    console.log('Triggered for doc:', snap.id, '| status:', n.status, '| target:', n.target);
+
     // Only process queued notifications
-    if (n.status !== 'queued') return;
+    if (n.status !== 'queued') {
+      console.log('Skipping — status is not queued:', n.status);
+      return;
+    }
 
     // Mark as sending immediately to prevent duplicate processing
     await snap.ref.update({ status: 'sending' });
+    console.log('Marked as sending, fetching tokens...');
 
     const base: Omit<admin.messaging.Message, 'token' | 'topic' | 'condition'> = {
       notification: {
@@ -52,6 +58,8 @@ export const sendAdminNotification = onDocumentCreated(
           .map((d) => d.data().fcmToken as string)
           .filter((t) => typeof t === 'string' && t.length > 0);
 
+        console.log('Users with FCM token:', tokens.length);
+
         if (tokens.length === 0) {
           await snap.ref.update({
             status: 'failed',
@@ -65,13 +73,37 @@ export const sendAdminNotification = onDocumentCreated(
         let successCount = 0;
         let failCount = 0;
 
+        const userDocs = usersSnap.docs;
+
         for (let i = 0; i < tokens.length; i += 500) {
           const chunk = tokens.slice(i, i + 500);
+          const chunkDocs = userDocs.slice(i, i + 500);
+          console.log(`Sending to chunk ${i}–${i + chunk.length}...`);
           const result = await messaging.sendEachForMulticast({ tokens: chunk, ...base });
+          console.log(`Chunk result: ${result.successCount} success, ${result.failureCount} failed`);
+
+          // Clean up stale tokens automatically
+          const cleanupPromises: Promise<unknown>[] = [];
+          result.responses.forEach((r, idx) => {
+            if (!r.success) {
+              console.error(`Token[${i + idx}] failed:`, r.error?.code, r.error?.message);
+              if (r.error?.code === 'messaging/registration-token-not-registered') {
+                cleanupPromises.push(
+                  chunkDocs[idx].ref.update({ fcmToken: '' })
+                );
+              }
+            }
+          });
+          if (cleanupPromises.length > 0) {
+            await Promise.all(cleanupPromises);
+            console.log(`Cleaned up ${cleanupPromises.length} stale tokens`);
+          }
+
           successCount += result.successCount;
           failCount += result.failureCount;
         }
 
+        console.log(`Done. Total sent: ${successCount}, failed: ${failCount}`);
         await snap.ref.update({
           status: 'sent',
           sentCount: successCount,
