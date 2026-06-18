@@ -16,7 +16,7 @@ export function LoginForm() {
     const unsub = auth.onAuthStateChanged(async user => {
       if (!user) return;
       const snap = await getDoc(doc(db, COLLECTIONS.users, user.uid));
-      if (snap.data()?.isAdmin === true) window.location.href = '/';
+      if (snap.data()?.isAdmin === true) window.location.href = '/admin';
     });
     return unsub;
   }, []);
@@ -33,7 +33,7 @@ export function LoginForm() {
         setError('Access denied. This account does not have admin privileges.');
         return;
       }
-      window.location.href = '/';
+      window.location.href = '/admin';
     } catch (err: any) {
       const msg: Record<string, string> = {
         'auth/user-not-found': 'No account found with this email.',

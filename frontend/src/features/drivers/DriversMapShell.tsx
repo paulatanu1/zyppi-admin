@@ -1,19 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { COLLECTIONS } from '@/lib/firebase/collections';
 import { OnlineBadge } from '@/components/shared/StatusBadge';
-import type { DriverLocation } from '@/lib/types';
+import type { VehicleModel } from '@/lib/types';
 
 const MAPS_KEY = import.meta.env.PUBLIC_MAPS_API_KEY;
 
-async function fetchDrivers(): Promise<DriverLocation[]> {
-  const snap = await getDocs(collection(db, COLLECTIONS.drivers));
-  return snap.docs.map(d => ({ driverId: d.id, ...d.data() } as DriverLocation));
-}
+type LiveVehicle = VehicleModel & { documents?: any };
 
-function GoogleMapComponent({ drivers }: { drivers: DriverLocation[] }) {
+function GoogleMapComponent({ vehicles }: { vehicles: LiveVehicle[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
@@ -34,35 +30,58 @@ function GoogleMapComponent({ drivers }: { drivers: DriverLocation[] }) {
     markersRef.current.forEach(m => m.setMap(null));
     markersRef.current = [];
 
-    drivers.forEach(driver => {
-      if (!driver.latitude || !driver.longitude) return;
+    vehicles.forEach(v => {
+      const lat = v.location?.latitude;
+      const lng = v.location?.longitude;
+      if (!lat || !lng) return;
+
       const marker = new google.maps.Marker({
-        position: { lat: driver.latitude, lng: driver.longitude },
+        position: { lat, lng },
         map: mapRef.current!,
-        title: driver.driverId,
+        title: v.vehicleDetails?.registrationNumber ?? v.vehicleId,
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
           scale: 8,
-          fillColor: driver.isOnline ? '#10b981' : '#6b7280',
+          fillColor: v.isOnline ? '#10b981' : '#6b7280',
           fillOpacity: 1,
           strokeColor: '#fff',
           strokeWeight: 2,
         },
       });
+
       const iw = new google.maps.InfoWindow({
-        content: `<div style="font-size:12px;padding:4px"><b>Driver</b><br/>ID: ${driver.driverId.slice(0, 8)}…<br/>Speed: ${driver.speed?.toFixed(0) ?? '0'} km/h</div>`,
+        content: `<div style="font-size:12px;padding:6px;line-height:1.6">
+          <b>${v.vehicleDetails?.brand ?? ''} ${v.vehicleDetails?.model ?? ''}</b><br/>
+          ${v.vehicleDetails?.registrationNumber ?? v.vehicleId.slice(0, 8)}<br/>
+          ${v.location?.city ? `📍 ${v.location.city}` : ''}
+        </div>`,
       });
       marker.addListener('click', () => iw.open(mapRef.current!, marker));
       markersRef.current.push(marker);
     });
-  }, [drivers]);
+  }, [vehicles]);
 
   return <div ref={ref} className="h-full w-full rounded-xl" />;
 }
 
 export function DriversMapShell() {
   const [mapsLoaded, setMapsLoaded] = useState(false);
-  const { data = [], isLoading } = useQuery({ queryKey: ['drivers'], queryFn: fetchDrivers, refetchInterval: 10_000 });
+  const [vehicles, setVehicles] = useState<LiveVehicle[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Real-time listener on vehicles — no polling needed
+  useEffect(() => {
+    const unsub = onSnapshot(
+      collection(db, COLLECTIONS.vehicles),
+      snap => {
+        const docs = snap.docs.map(d => ({ vehicleId: d.id, ...d.data() } as LiveVehicle));
+        setVehicles(docs);
+        setLoading(false);
+      },
+      () => setLoading(false),
+    );
+    return unsub;
+  }, []);
 
   useEffect(() => {
     if (window.google) { setMapsLoaded(true); return; }
@@ -73,8 +92,11 @@ export function DriversMapShell() {
     document.head.appendChild(script);
   }, []);
 
-  const online = data.filter(d => d.isOnline);
-  const offline = data.filter(d => !d.isOnline);
+  const online = vehicles.filter(v => v.isOnline);
+  const offline = vehicles.filter(v => !v.isOnline);
+
+  // Only plot vehicles that have coordinates
+  const mappable = vehicles.filter(v => v.location?.latitude && v.location?.longitude);
 
   return (
     <div className="space-y-4">
@@ -94,45 +116,64 @@ export function DriversMapShell() {
             <p className="text-xl font-bold text-gray-900">{offline.length}</p>
           </div>
         </div>
+        <div className="rounded-xl border border-gray-200 bg-white px-4 py-3 flex items-center gap-3">
+          <span className="h-2.5 w-2.5 rounded-full bg-blue-400" />
+          <div>
+            <p className="text-xs text-gray-500">With GPS</p>
+            <p className="text-xl font-bold text-gray-900">{mappable.length}</p>
+          </div>
+        </div>
         <div className="ml-auto flex items-center gap-1.5 text-xs text-gray-400">
           <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-          Auto-refreshes every 10s
+          Live — updates instantly
         </div>
       </div>
 
       {/* Map + list */}
-      <div className="flex gap-4 h-[calc(100vh-280px)]">
+      <div className="flex gap-4 h-[calc(100vh-300px)]">
         <div className="flex-1 overflow-hidden rounded-xl border border-gray-200">
-          {!mapsLoaded || isLoading ? (
+          {!mapsLoaded || loading ? (
             <div className="flex h-full items-center justify-center bg-gray-50 text-sm text-gray-400">
-              {isLoading ? 'Loading drivers...' : 'Loading map...'}
+              {loading ? 'Loading drivers...' : 'Loading map...'}
             </div>
           ) : (
-            <GoogleMapComponent drivers={data} />
+            <GoogleMapComponent vehicles={mappable} />
           )}
         </div>
 
         {/* Driver list sidebar */}
-        <div className="w-64 overflow-y-auto rounded-xl border border-gray-200 bg-white">
+        <div className="w-72 overflow-y-auto rounded-xl border border-gray-200 bg-white">
           <div className="sticky top-0 border-b border-gray-100 bg-white px-3 py-2.5">
-            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">All Drivers</p>
+            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+              All Vehicles ({vehicles.length})
+            </p>
           </div>
           <div className="divide-y divide-gray-100">
-            {data.map(d => (
-              <div key={d.driverId} className="flex items-center gap-2.5 px-3 py-2.5">
-                <div className="h-7 w-7 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-600">
-                  {d.driverId.slice(0, 2).toUpperCase()}
+            {vehicles.length === 0 && !loading && (
+              <p className="py-8 text-center text-xs text-gray-400">No vehicles registered</p>
+            )}
+            {vehicles.map(v => (
+              <div key={v.vehicleId} className="flex items-center gap-2.5 px-3 py-3">
+                <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-600 shrink-0">
+                  🚗
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-mono text-gray-700 truncate">{d.driverId.slice(0, 12)}…</p>
-                  <p className="text-[10px] text-gray-400">{d.speed?.toFixed(0) ?? 0} km/h</p>
+                  <p className="text-xs font-medium text-gray-800 truncate">
+                    {v.vehicleDetails?.brand} {v.vehicleDetails?.model}
+                  </p>
+                  <p className="text-[10px] font-mono text-gray-400 truncate">
+                    {v.vehicleDetails?.registrationNumber ?? v.vehicleId.slice(0, 12)}
+                  </p>
+                  {v.location?.city && (
+                    <p className="text-[10px] text-gray-400">📍 {v.location.city}</p>
+                  )}
+                  {!v.location?.latitude && (
+                    <p className="text-[10px] text-amber-500">No GPS yet</p>
+                  )}
                 </div>
-                <OnlineBadge online={d.isOnline ?? false} />
+                <OnlineBadge online={v.isOnline ?? false} />
               </div>
             ))}
-            {data.length === 0 && !isLoading && (
-              <p className="py-8 text-center text-xs text-gray-400">No driver data</p>
-            )}
           </div>
         </div>
       </div>

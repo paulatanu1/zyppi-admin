@@ -4,7 +4,7 @@ import { SupportShell } from '@/features/support/SupportShell';
 
 export default function SupportPage() {
   return (
-    <AdminShell title="Support Center" subtitle="Complaints and user feedback" currentPath="/support">
+    <AdminShell title="Support Center" subtitle="Complaints and user feedback" currentPath="/admin/support">
       <SupportShell />
     </AdminShell>
   );

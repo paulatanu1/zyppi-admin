@@ -1,15 +1,377 @@
 ---
 import '../styles/globals.css';
-import DashboardPage from '../entries/DashboardPage';
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Primary Meta -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard — Zyppi Admin</title>
+  <title>Zyppi – Book Rides, Cabs & Vehicle Rentals Online | India</title>
+  <meta name="description" content="Zyppi is India's smart ride-booking app. Book local cabs, outstation trips, bike rides, autos & goods delivery in minutes. Drivers & vehicle owners – earn more with Zyppi." />
+  <meta name="keywords" content="ride booking app india, cab booking online, outstation cab, local taxi, vehicle rental, bike taxi, auto booking, driver on demand, earn money driving, vehicle owner app, zyppi ride" />
+  <meta name="author" content="Zyppi" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://zyppi.in/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Zyppi" />
+  <meta property="og:url" content="https://zyppi.in/" />
+  <meta property="og:title" content="Zyppi – Book Rides & Earn More. India's Smarter Cab App." />
+  <meta property="og:description" content="Book local rides, outstation trips, autos, bikes & goods delivery instantly. Vehicle owners & drivers – join Zyppi and start earning today." />
+  <meta property="og:image" content="https://zyppi.in/assets/og-cover.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Zyppi ride-booking app — book a cab in minutes" />
+  <meta property="og:locale" content="en_IN" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@zyppiride" />
+  <meta name="twitter:title" content="Zyppi – Book Rides & Earn More. India's Smarter Cab App." />
+  <meta name="twitter:description" content="Book local rides, outstation trips, autos, bikes & goods delivery instantly. Drivers & vehicle owners – join Zyppi and start earning today." />
+  <meta name="twitter:image" content="https://zyppi.in/assets/og-cover.jpg" />
+  <meta name="twitter:image:alt" content="Zyppi ride-booking app" />
+
+  <!-- Android App -->
+  <meta name="google-play-app" content="app-id=com.zyppiride.app" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Theme color -->
+  <meta name="theme-color" content="#673AB7" />
 </head>
-<body class="bg-gray-50">
-  <DashboardPage client:only="react" />
+<body class="bg-white text-gray-900 antialiased">
+
+  <!-- ─── NAV ──────────────────────────────────────────────────────────────── -->
+  <header class="sticky top-0 z-50 border-b border-white/10 bg-[hsl(243_75%_22%)] shadow-lg">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+      <a href="/" class="flex items-center gap-2.5">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <span class="text-xl font-bold tracking-wide text-white">ZYPPI</span>
+      </a>
+      <nav class="hidden items-center gap-6 md:flex">
+        <a href="#riders" class="text-sm text-white/70 hover:text-white transition-colors">For Riders</a>
+        <a href="#partners" class="text-sm text-white/70 hover:text-white transition-colors">For Drivers</a>
+        <a href="#how-it-works" class="text-sm text-white/70 hover:text-white transition-colors">How It Works</a>
+        <a href="#faq" class="text-sm text-white/70 hover:text-white transition-colors">FAQ</a>
+      </nav>
+      <a
+        href="https://play.google.com/store/apps/details?id=com.zyppiride.app"
+        target="_blank" rel="noopener"
+        class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-[hsl(243_75%_28%)] shadow hover:bg-white/90 transition-colors"
+      >
+        Download App
+      </a>
+    </div>
+  </header>
+
+  <!-- ─── HERO ─────────────────────────────────────────────────────────────── -->
+  <section style="background: linear-gradient(135deg, hsl(243,75%,18%) 0%, hsl(243,75%,34%) 60%, hsl(260,70%,40%) 100%)">
+    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 text-center">
+      <div class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium text-white/80 mb-6">
+        <span class="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse"></span>
+        Available across India
+      </div>
+
+      <h1 class="text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+        Book Rides Instantly.<br class="hidden sm:block" />
+        Anywhere in India.
+      </h1>
+      <p class="mx-auto mt-6 max-w-2xl text-lg text-white/70">
+        Local cabs, outstation trips, bike taxis, autos & goods delivery — all in one app.
+        Safe, affordable, and on time.
+      </p>
+
+      <div class="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        <a
+          href="https://play.google.com/store/apps/details?id=com.zyppiride.app"
+          target="_blank" rel="noopener"
+          class="flex items-center gap-3 rounded-2xl bg-white px-6 py-3.5 text-sm font-bold text-[hsl(243_75%_28%)] shadow-lg hover:bg-white/90 transition-all"
+        >
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.35.2.77.2 1.14 0l10.9-6.3-2.3-2.3-9.74 8.6zm15.18-8.76L5.04 8.26 3.18.24C2.83.04 2.41.04 2.06.24 1.7.44 1.5.82 1.5 1.24v21.52c0 .42.2.8.56 1l1.12-1L18.36 15zm2.08-1.2L4.32.76 3.18.24 18.36 8l2.08 5.8zM4.32 23.24l14.04-8.04-2.08-5.96L4.32.76v22.48z"/></svg>
+          Get it on Google Play
+        </a>
+        <a href="#riders" class="rounded-2xl border border-white/30 px-6 py-3.5 text-sm font-semibold text-white hover:bg-white/10 transition-colors">
+          Learn More ↓
+        </a>
+      </div>
+
+      <!-- Stats -->
+      <div class="mt-16 grid grid-cols-3 gap-4 max-w-lg mx-auto">
+        {[
+          { value: '10K+', label: 'Rides Booked' },
+          { value: '500+', label: 'Active Drivers' },
+          { value: '4.5★', label: 'App Rating' },
+        ].map(s => (
+          <div class="rounded-2xl bg-white/10 px-4 py-4 backdrop-blur-sm">
+            <p class="text-2xl font-bold text-white">{s.value}</p>
+            <p class="mt-0.5 text-xs text-white/60">{s.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOR RIDERS ────────────────────────────────────────────────────────── -->
+  <section id="riders" class="py-20 bg-gray-50">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+      <div class="text-center mb-12">
+        <p class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">For Riders</p>
+        <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">Every ride, covered.</h2>
+        <p class="mt-3 text-gray-500 max-w-xl mx-auto">One app for all your travel needs — local or long distance.</p>
+      </div>
+      <div class="grid gap-6 sm:grid-cols-3">
+        <div class="rounded-2xl bg-white border border-gray-100 p-6 shadow-sm">
+          <div class="mb-4 h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center text-2xl">🏙️</div>
+          <h3 class="text-base font-semibold text-gray-900 mb-2">Local Rides</h3>
+          <p class="text-sm text-gray-500">Book a cab, bike taxi or auto near you in seconds. Real-time tracking, no surge surprises.</p>
+        </div>
+        <div class="rounded-2xl bg-white border border-gray-100 p-6 shadow-sm">
+          <div class="mb-4 h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center text-2xl">🛣️</div>
+          <h3 class="text-base font-semibold text-gray-900 mb-2">Outstation Trips</h3>
+          <p class="text-sm text-gray-500">Plan intercity travel with ease. Verified drivers, fixed fares, comfortable rides to any destination.</p>
+        </div>
+        <div class="rounded-2xl bg-white border border-gray-100 p-6 shadow-sm">
+          <div class="mb-4 h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center text-2xl">📦</div>
+          <h3 class="text-base font-semibold text-gray-900 mb-2">Goods & Delivery</h3>
+          <p class="text-sm text-gray-500">Send packages, furniture or cargo across the city. Reliable vehicles for all load sizes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOR DRIVERS & OWNERS ──────────────────────────────────────────────── -->
+  <section id="partners" class="py-20 bg-white">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+      <div class="grid gap-12 lg:grid-cols-2 lg:items-center">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">For Drivers & Vehicle Owners</p>
+          <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">Start Earning Today.</h2>
+          <p class="mt-4 text-gray-500 text-lg">Join thousands of drivers and vehicle owners already earning with Zyppi. Your schedule, your earnings.</p>
+          <ul class="mt-8 space-y-4">
+            {[
+              { icon: '💰', title: 'Competitive Earnings', desc: 'Transparent per-km rates with no hidden deductions.' },
+              { icon: '📱', title: 'Simple Driver App', desc: 'Accept rides, track earnings, and manage your schedule easily.' },
+              { icon: '🔒', title: 'Register Your Vehicle', desc: 'Complete KYC and document upload in minutes. Get approved fast.' },
+            ].map(f => (
+              <li class="flex items-start gap-4">
+                <span class="mt-0.5 h-10 w-10 shrink-0 rounded-xl bg-indigo-50 flex items-center justify-center text-xl">{f.icon}</span>
+                <div>
+                  <h3 class="font-semibold text-gray-900">{f.title}</h3>
+                  <p class="text-sm text-gray-500 mt-0.5">{f.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <a
+            href="https://play.google.com/store/apps/details?id=com.zyppiride.app"
+            target="_blank" rel="noopener"
+            class="mt-8 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors shadow"
+          >
+            Register as Driver / Owner →
+          </a>
+        </div>
+        <div class="rounded-3xl bg-gradient-to-br from-indigo-600 to-purple-700 p-8 text-white text-center">
+          <p class="text-5xl font-extrabold">₹</p>
+          <p class="mt-2 text-2xl font-bold">Earn on Your Terms</p>
+          <p class="mt-3 text-white/70 text-sm max-w-xs mx-auto">Set your own availability. Drive when you want, rest when you don't.</p>
+          <div class="mt-8 grid grid-cols-2 gap-4 text-left">
+            {[
+              { label: 'Per-km payout', value: 'Transparent' },
+              { label: 'Payout frequency', value: 'Daily / Weekly' },
+              { label: 'Vehicle types', value: 'All accepted' },
+              { label: 'KYC process', value: 'Fast & digital' },
+            ].map(i => (
+              <div class="rounded-xl bg-white/10 px-3 py-3">
+                <p class="text-[11px] text-white/60 uppercase tracking-wide">{i.label}</p>
+                <p class="mt-0.5 text-sm font-semibold">{i.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── HOW IT WORKS ──────────────────────────────────────────────────────── -->
+  <section id="how-it-works" class="py-20 bg-gray-50">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 text-center">
+      <p class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">Simple & Fast</p>
+      <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">How Zyppi Works</h2>
+      <p class="mt-3 text-gray-500 max-w-xl mx-auto">Booking a ride takes under a minute.</p>
+      <div class="mt-12 grid gap-8 sm:grid-cols-3">
+        {[
+          { step: '01', icon: '📲', title: 'Download & Sign Up', desc: 'Install the Zyppi app and register with your mobile number or email. Takes less than 60 seconds.' },
+          { step: '02', icon: '📍', title: 'Set Your Pickup & Drop', desc: 'Enter your pickup location and destination. Choose from local ride, outstation or goods delivery.' },
+          { step: '03', icon: '🚗', title: 'Ride & Pay Securely', desc: 'A verified driver is matched instantly. Track in real-time and pay via UPI, card or cash.' },
+        ].map(s => (
+          <div class="relative rounded-2xl bg-white border border-gray-100 p-7 shadow-sm text-left">
+            <span class="absolute -top-3 left-6 rounded-full bg-indigo-600 px-2.5 py-0.5 text-xs font-bold text-white">{s.step}</span>
+            <div class="mb-4 text-3xl">{s.icon}</div>
+            <h3 class="font-semibold text-gray-900 mb-2">{s.title}</h3>
+            <p class="text-sm text-gray-500">{s.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FAQ ───────────────────────────────────────────────────────────────── -->
+  <section id="faq" class="py-20 bg-white">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6">
+      <div class="text-center mb-12">
+        <p class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">Got Questions?</p>
+        <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">Frequently Asked Questions</h2>
+      </div>
+      <div class="space-y-4">
+        {[
+          {
+            q: 'How do I book a ride on Zyppi?',
+            a: 'Download the Zyppi app, register with your mobile number or email, select your pickup and drop location, choose a vehicle type and confirm your booking instantly.',
+          },
+          {
+            q: 'Can I book an outstation trip on Zyppi?',
+            a: "Yes. Zyppi supports outstation bookings for intercity travel across India. Select 'Outstation' on the home screen and choose your destination.",
+          },
+          {
+            q: 'How do I register my vehicle on Zyppi?',
+            a: 'Download the Zyppi app, sign up as a Vehicle Owner, complete your KYC and vehicle document upload. Once approved, your vehicle will be listed for bookings.',
+          },
+          {
+            q: 'What vehicle types are available on Zyppi?',
+            a: 'Zyppi supports bikes, auto rickshaws, hatchbacks, sedans, SUVs, vans, and goods vehicles for local rides, outstation trips and delivery.',
+          },
+        ].map((item, i) => (
+          <details class="group rounded-2xl border border-gray-100 bg-gray-50 px-6 py-5 cursor-pointer">
+            <summary class="flex items-center justify-between font-medium text-gray-900 list-none">
+              {item.q}
+              <span class="ml-4 shrink-0 text-gray-400 group-open:rotate-180 transition-transform duration-200">▾</span>
+            </summary>
+            <p class="mt-3 text-sm text-gray-500 leading-relaxed">{item.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CTA BAND ───────────────────────────────────────────────────────────── -->
+  <section style="background: linear-gradient(135deg, hsl(243,75%,22%) 0%, hsl(260,70%,38%) 100%)" class="py-16">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 text-center">
+      <h2 class="text-3xl font-bold text-white sm:text-4xl">Ready to ride smarter?</h2>
+      <p class="mt-3 text-white/70">Join India's growing community of riders and drivers on Zyppi.</p>
+      <a
+        href="https://play.google.com/store/apps/details?id=com.zyppiride.app"
+        target="_blank" rel="noopener"
+        class="mt-8 inline-flex items-center gap-3 rounded-2xl bg-white px-8 py-4 text-sm font-bold text-[hsl(243_75%_28%)] shadow-lg hover:bg-white/90 transition-all"
+      >
+        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.35.2.77.2 1.14 0l10.9-6.3-2.3-2.3-9.74 8.6zm15.18-8.76L5.04 8.26 3.18.24C2.83.04 2.41.04 2.06.24 1.7.44 1.5.82 1.5 1.24v21.52c0 .42.2.8.56 1l1.12-1L18.36 15zm2.08-1.2L4.32.76 3.18.24 18.36 8l2.08 5.8zM4.32 23.24l14.04-8.04-2.08-5.96L4.32.76v22.48z"/></svg>
+        Download on Google Play — It's Free
+      </a>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ────────────────────────────────────────────────────────────── -->
+  <footer class="bg-gray-900 py-10">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <span class="text-sm font-bold text-white tracking-wide">ZYPPI</span>
+      </div>
+      <p class="text-xs text-gray-500 text-center">
+        © {new Date().getFullYear()} Zyppi. All rights reserved. &nbsp;·&nbsp;
+        <a href="mailto:support@zyppiride.com" class="hover:text-gray-400 transition-colors">support@zyppiride.com</a>
+      </p>
+      <div class="flex gap-4 text-xs text-gray-500">
+        <a href="/privacy-policy" class="hover:text-gray-400 transition-colors">Privacy Policy</a>
+        <a href="/term-condition" class="hover:text-gray-400 transition-colors">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "MobileApplication",
+      "name": "Zyppi",
+      "operatingSystem": "ANDROID",
+      "applicationCategory": "TravelApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR"
+      },
+      "description": "Book local rides, outstation trips, bike taxis, autos and goods delivery instantly. Vehicle owners and drivers can register and start earning.",
+      "url": "https://zyppi.in",
+      "installUrl": "https://play.google.com/store/apps/details?id=com.zyppiride.app",
+      "screenshot": "https://zyppi.in/assets/app-screenshot.jpg",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.5",
+        "ratingCount": "120"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Zyppi",
+      "url": "https://zyppi.in",
+      "logo": "https://zyppi.in/assets/logo.png",
+      "sameAs": [
+        "https://play.google.com/store/apps/details?id=com.zyppiride.app"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "availableLanguage": ["English", "Hindi"]
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I book a ride on Zyppi?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Download the Zyppi app, register with your mobile number or email, select your pickup and drop location, choose a vehicle type and confirm your booking instantly."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I book an outstation trip on Zyppi?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Zyppi supports outstation bookings for intercity travel across India. Select 'Outstation' on the home screen and choose your destination."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I register my vehicle on Zyppi?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Download the Zyppi app, sign up as a Vehicle Owner, complete your KYC and vehicle document upload. Once approved, your vehicle will be listed for bookings."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What vehicle types are available on Zyppi?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Zyppi supports bikes, auto rickshaws, hatchbacks, sedans, SUVs, vans, and goods vehicles for local rides, outstation trips and delivery."
+          }
+        }
+      ]
+    }
+  ]
+  </script>
+
 </body>
 </html>

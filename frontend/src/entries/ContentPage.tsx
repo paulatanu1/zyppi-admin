@@ -4,7 +4,7 @@ import { ContentShell } from '@/features/content/ContentShell';
 
 export default function ContentPage() {
   return (
-    <AdminShell title="Content" subtitle="Banners, promo codes and offers" currentPath="/content">
+    <AdminShell title="Content" subtitle="Banners, promo codes and offers" currentPath="/admin/content">
       <ContentShell />
     </AdminShell>
   );

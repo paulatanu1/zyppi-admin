@@ -49,7 +49,8 @@ export function UsersShell() {
           </div>
           <div>
             <p className="font-medium text-gray-900 text-sm">{u.fullName ?? '—'}</p>
-            <p className="text-xs text-gray-400">{u.email ?? u.mobile ?? '—'}</p>
+            <p className="text-xs text-gray-400">{u.email ?? '—'}</p>
+            {u.mobile && <p className="text-xs font-mono text-gray-600">{u.mobile}</p>}
           </div>
         </div>
       ),

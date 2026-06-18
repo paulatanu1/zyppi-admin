@@ -34,7 +34,7 @@ export function useAuth(): AuthState & { signOut: () => Promise<void> } {
       try {
         const snap = await getDoc(doc(db, COLLECTIONS.users, firebaseUser.uid));
         const data = snap.data();
-        const isAdmin = data?.isAdmin === true;
+        const isAdmin = data?.isAdmin ?? false;
 
         setState({
           user: {

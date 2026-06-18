@@ -4,7 +4,7 @@ import { BookingsShell } from '@/features/bookings/BookingsShell';
 
 export default function BookingsPage() {
   return (
-    <AdminShell title="Bookings" subtitle="All ride bookings and history" currentPath="/bookings">
+    <AdminShell title="Bookings" subtitle="All ride bookings and history" currentPath="/admin/bookings">
       <BookingsShell />
     </AdminShell>
   );

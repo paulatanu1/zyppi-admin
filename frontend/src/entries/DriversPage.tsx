@@ -4,7 +4,7 @@ import { DriversMapShell } from '@/features/drivers/DriversMapShell';
 
 export default function DriversPage() {
   return (
-    <AdminShell title="Live Drivers" subtitle="Real-time driver locations" currentPath="/drivers">
+    <AdminShell title="Live Drivers" subtitle="Real-time driver locations" currentPath="/admin/drivers">
       <DriversMapShell />
     </AdminShell>
   );

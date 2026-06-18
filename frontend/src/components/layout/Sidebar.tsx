@@ -6,13 +6,13 @@ import {
 } from 'lucide-react';
 
 const NAV = [
-  { label: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { label: 'Users', href: '/users', icon: Users },
-  { label: 'Bookings', href: '/bookings', icon: CalendarCheck },
-  { label: 'Vehicles', href: '/vehicles', icon: Car },
-  { label: 'Live Drivers', href: '/drivers', icon: MapPin },
-  { label: 'Content', href: '/content', icon: Image },
-  { label: 'Support', href: '/support', icon: HeadphonesIcon },
+  { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { label: 'Users', href: '/admin/users', icon: Users },
+  { label: 'Bookings', href: '/admin/bookings', icon: CalendarCheck },
+  { label: 'Vehicles', href: '/admin/vehicles', icon: Car },
+  { label: 'Live Drivers', href: '/admin/drivers', icon: MapPin },
+  { label: 'Content', href: '/admin/content', icon: Image },
+  { label: 'Support', href: '/admin/support', icon: HeadphonesIcon },
 ];
 
 interface SidebarProps {
@@ -23,7 +23,7 @@ interface SidebarProps {
 
 export function Sidebar({ currentPath, onSignOut, userName }: SidebarProps) {
   const isActive = (href: string) =>
-    href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+    href === '/admin' ? currentPath === '/admin' : currentPath.startsWith(href);
 
   return (
     <aside className="flex h-screen w-64 flex-col" style={{ background: 'hsl(243 75% 28%)' }}>

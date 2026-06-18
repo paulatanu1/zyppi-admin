@@ -4,7 +4,7 @@ import { DashboardShell } from '@/features/dashboard/DashboardShell';
 
 export default function DashboardPage() {
   return (
-    <AdminShell title="Dashboard" subtitle="Overview of Zyppi Ride operations" currentPath="/">
+    <AdminShell title="Dashboard" subtitle="Overview of Zyppi Ride operations" currentPath="/admin">
       <DashboardShell />
     </AdminShell>
   );

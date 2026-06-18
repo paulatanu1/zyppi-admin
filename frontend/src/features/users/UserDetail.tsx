@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { collection, getDocs, doc, updateDoc, where, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
@@ -8,7 +8,7 @@ import { VerificationBadge, BookingStatusBadge } from '@/components/shared/Statu
 import { DocumentViewer } from '@/components/shared/DocumentViewer';
 import { formatDate, formatCurrency, timeAgo } from '@/lib/utils/formatters';
 import type { UserModel, BookingModel, VehicleModel, BookingStatus } from '@/lib/types';
-import { CheckCircle, XCircle, Mail, Phone, Calendar, Shield, Car } from 'lucide-react';
+import { CheckCircle, XCircle, Mail, Phone, Calendar, Shield, Car, Pencil, Loader2 } from 'lucide-react';
 
 interface Props {
   user: UserModel | null;
@@ -17,6 +17,40 @@ interface Props {
 
 export function UserDetail({ user, onClose }: Props) {
   const qc = useQueryClient();
+  const [editingMobile, setEditingMobile] = useState(false);
+  const [newMobile, setNewMobile] = useState('');
+  const [mobileError, setMobileError] = useState('');
+  const [savingMobile, setSavingMobile] = useState(false);
+
+  async function saveMobileNumber() {
+    if (!user) return;
+    const trimmed = newMobile.trim();
+    if (!trimmed) { setMobileError('Mobile number is required'); return; }
+    setSavingMobile(true);
+    setMobileError('');
+    try {
+      const snap = await getDocs(
+        query(collection(db, COLLECTIONS.users), where('mobile', '==', trimmed))
+      );
+      const conflict = snap.docs.find(d => d.id !== user.userId);
+      if (conflict) {
+        setMobileError('This mobile number is already registered to another user');
+        return;
+      }
+      await updateDoc(doc(db, COLLECTIONS.users, user.userId), { mobile: trimmed });
+      qc.invalidateQueries({ queryKey: ['users'] });
+      setEditingMobile(false);
+    } catch {
+      setMobileError('Failed to update mobile number');
+    } finally {
+      setSavingMobile(false);
+    }
+  }
+
+  React.useEffect(() => {
+    setEditingMobile(false);
+    setMobileError('');
+  }, [user?.userId]);
 
   const { data: vehicles = [] } = useQuery({
     queryKey: ['user-vehicles', user?.userId],
@@ -106,14 +140,55 @@ export function UserDetail({ user, onClose }: Props) {
                 </a>
               ) : undefined}
             />
-            <DetailField
-              label="Mobile"
-              value={user.mobile ? (
-                <a href={`tel:${user.mobile}`} className="flex items-center gap-1 text-indigo-600 hover:underline">
-                  <Phone className="h-3.5 w-3.5" />{user.mobile}
-                </a>
-              ) : undefined}
-            />
+            <div className="flex flex-col gap-0.5">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Mobile</p>
+              {editingMobile ? (
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="tel"
+                      value={newMobile}
+                      onChange={e => { setNewMobile(e.target.value); setMobileError(''); }}
+                      placeholder="+91XXXXXXXXXX"
+                      className="w-full rounded-lg border border-gray-200 px-2.5 py-1.5 text-sm font-mono outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                      autoFocus
+                    />
+                    <button
+                      onClick={saveMobileNumber}
+                      disabled={savingMobile}
+                      className="shrink-0 rounded-lg bg-indigo-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-60 flex items-center gap-1"
+                    >
+                      {savingMobile ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3" />}
+                      Save
+                    </button>
+                    <button
+                      onClick={() => { setEditingMobile(false); setMobileError(''); }}
+                      className="shrink-0 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  {mobileError && <p className="text-xs text-red-600">{mobileError}</p>}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  {user.mobile ? (
+                    <a href={`tel:${user.mobile}`} className="flex items-center gap-1 text-sm text-indigo-600 hover:underline font-mono">
+                      <Phone className="h-3.5 w-3.5" />{user.mobile}
+                    </a>
+                  ) : (
+                    <span className="text-sm text-gray-300">—</span>
+                  )}
+                  <button
+                    onClick={() => { setNewMobile(user.mobile ?? ''); setEditingMobile(true); setMobileError(''); }}
+                    className="rounded p-0.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                    title="Edit mobile"
+                  >
+                    <Pencil className="h-3 w-3" />
+                  </button>
+                </div>
+              )}
+            </div>
           </DetailSection>
 
           {/* Account info */}

@@ -19,10 +19,11 @@ async function fetchVehicles(): Promise<VehicleModel[]> {
 export function VehiclesShell() {
   const [search, setSearch] = useState('');
   const [docFilter, setDocFilter] = useState('all');
-  const [selected, setSelected] = useState<VehicleModel | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const qc = useQueryClient();
 
   const { data = [], isLoading } = useQuery({ queryKey: ['vehicles'], queryFn: fetchVehicles });
+  const selectedVehicle = data.find(v => v.vehicleId === selectedId) ?? null;
 
   const updateDocStatus = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
@@ -85,7 +86,7 @@ export function VehiclesShell() {
               </button>
             </>
           )}
-          <button onClick={e => { e.stopPropagation(); setSelected(v); }}
+          <button onClick={e => { e.stopPropagation(); setSelectedId(v.vehicleId); }}
             className="rounded px-2 py-1 text-xs text-indigo-600 hover:bg-indigo-50 font-medium transition-colors">
             View →
           </button>
@@ -117,10 +118,10 @@ export function VehiclesShell() {
         searchValue={search}
         rowKey={v => v.vehicleId}
         emptyText="No vehicles found"
-        onRowClick={setSelected}
+        onRowClick={v => setSelectedId(v.vehicleId)}
       />
 
-      <VehicleDetail vehicle={selected as any} onClose={() => setSelected(null)} />
+      <VehicleDetail vehicle={selectedVehicle as any} onClose={() => setSelectedId(null)} />
     </div>
   );
 }

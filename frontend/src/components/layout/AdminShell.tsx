@@ -20,7 +20,7 @@ function ShellInner({ title, subtitle, currentPath, children }: AdminShellProps)
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) {
-      window.location.href = '/login';
+      window.location.href = '/admin/login';
     }
   }, [user, loading, isAdmin]);
 

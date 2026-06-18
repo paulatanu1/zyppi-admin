@@ -4,7 +4,7 @@ import { VehiclesShell } from '@/features/vehicles/VehiclesShell';
 
 export default function VehiclesPage() {
   return (
-    <AdminShell title="Vehicles" subtitle="Vehicle approvals and management" currentPath="/vehicles">
+    <AdminShell title="Vehicles" subtitle="Vehicle approvals and management" currentPath="/admin/vehicles">
       <VehiclesShell />
     </AdminShell>
   );
