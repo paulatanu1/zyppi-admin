@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { collection, getDocs, doc, updateDoc, where, query } from 'firebase/firestore';
+import { useAdminSettings } from '@/lib/context/AdminSettingsContext';
 import { db } from '@/lib/firebase/client';
 import { COLLECTIONS } from '@/lib/firebase/collections';
 import { SlideOver, DetailField, DetailSection } from '@/components/shared/SlideOver';
@@ -17,6 +18,7 @@ interface Props {
 
 export function UserDetail({ user, onClose }: Props) {
   const qc = useQueryClient();
+  const { settings } = useAdminSettings();
   const [editingMobile, setEditingMobile] = useState(false);
   const [newMobile, setNewMobile] = useState('');
   const [mobileError, setMobileError] = useState('');
@@ -54,7 +56,7 @@ export function UserDetail({ user, onClose }: Props) {
 
   const { data: vehicles = [] } = useQuery({
     queryKey: ['user-vehicles', user?.userId],
-    enabled: !!user,
+    enabled: !!user && settings.fetchUserDetails,
     queryFn: async () => {
       const snap = await getDocs(
         query(collection(db, COLLECTIONS.vehicles), where('userId', '==', user!.userId))
@@ -65,7 +67,7 @@ export function UserDetail({ user, onClose }: Props) {
 
   const { data: bookings = [] } = useQuery({
     queryKey: ['user-bookings', user?.userId],
-    enabled: !!user,
+    enabled: !!user && settings.fetchUserDetails,
     queryFn: async () => {
       const snap = await getDocs(
         query(collection(db, COLLECTIONS.bookings), where('userId', '==', user!.userId))

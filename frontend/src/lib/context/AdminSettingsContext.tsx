@@ -4,6 +4,7 @@ export interface AdminSettings {
   liveDriverTracking: boolean;   // onSnapshot listener on vehicles
   fetchDashboard: boolean;
   fetchUsers: boolean;
+  fetchUserDetails: boolean;     // sub-queries when opening a user panel
   fetchBookings: boolean;
   fetchVehicles: boolean;
   fetchSupport: boolean;
@@ -17,6 +18,7 @@ const DEFAULTS: AdminSettings = {
   liveDriverTracking: true,
   fetchDashboard: true,
   fetchUsers: true,
+  fetchUserDetails: true,
   fetchBookings: true,
   fetchVehicles: true,
   fetchSupport: true,
