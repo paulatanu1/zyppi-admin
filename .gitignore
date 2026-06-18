@@ -1,0 +1,6 @@
+# Local Netlify folder
+.netlify
+
+# Firebase Functions — never commit these
+functions/node_modules/
+functions/lib/
