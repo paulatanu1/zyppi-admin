@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAdminSettings, type AdminSettings } from '@/lib/context/AdminSettingsContext';
+import { collection, getDocs, doc, updateDoc, writeBatch } from 'firebase/firestore';
+import { db } from '@/lib/firebase/client';
+import { COLLECTIONS } from '@/lib/firebase/collections';
 import { cn } from '@/lib/utils/cn';
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
@@ -101,6 +104,35 @@ function AlwaysOnRow({ label, description, note, impact }: { label: string; desc
 
 export function SettingsShell() {
   const { settings, update, reset } = useAdminSettings();
+  const [backfillState, setBackfillState] = useState<'idle' | 'running' | 'done'>('idle');
+  const [backfillResult, setBackfillResult] = useState('');
+
+  async function runBackfill() {
+    if (!confirm('Set verificationStatus: "pending" for all users who are missing it?')) return;
+    setBackfillState('running');
+    setBackfillResult('');
+    try {
+      const snap = await getDocs(collection(db, COLLECTIONS.users));
+      const batch = writeBatch(db);
+      let count = 0;
+      snap.forEach(d => {
+        if (!d.data().verificationStatus) {
+          batch.update(doc(db, COLLECTIONS.users, d.id), { verificationStatus: 'pending' });
+          count++;
+        }
+      });
+      if (count > 0) {
+        await batch.commit();
+        setBackfillResult(`✅ Updated ${count} user${count > 1 ? 's' : ''} → verificationStatus: pending`);
+      } else {
+        setBackfillResult('✅ All users already have verificationStatus set — nothing to update.');
+      }
+    } catch (e: any) {
+      setBackfillResult(`❌ Failed: ${e.message}`);
+    } finally {
+      setBackfillState('done');
+    }
+  }
 
   function toggle(key: keyof AdminSettings) {
     update(key, !settings[key] as any);
@@ -262,6 +294,33 @@ export function SettingsShell() {
           note="Free up to 28,000 map loads/month. Beyond that: ~$7/1,000 loads. For an admin panel this limit is unlikely to be hit."
           impact="always"
         />
+      </div>
+
+      {/* ── Database Maintenance ────────────────────────────── */}
+      <div className="space-y-3">
+        <SectionHeader
+          title="Database Maintenance"
+          subtitle="One-time fixes for missing Firestore fields on existing users."
+        />
+        <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+          <div>
+            <p className="text-sm font-semibold text-gray-900 mb-1">Backfill missing verificationStatus</p>
+            <p className="text-xs text-gray-500 mb-3">
+              Sets <code className="bg-gray-100 px-1 rounded">verificationStatus: "pending"</code> on any user document
+              that doesn't have this field. Safe to run multiple times — only updates users missing the field.
+            </p>
+            <button
+              onClick={runBackfill}
+              disabled={backfillState === 'running'}
+              className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors"
+            >
+              {backfillState === 'running' ? 'Running…' : 'Run Backfill'}
+            </button>
+            {backfillResult && (
+              <p className="mt-2 text-xs text-gray-700 bg-gray-50 rounded-lg px-3 py-2">{backfillResult}</p>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Reset */}
