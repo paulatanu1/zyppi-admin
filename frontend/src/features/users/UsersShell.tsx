@@ -65,6 +65,12 @@ export function UsersShell() {
     { key: 'role', header: 'Role', render: u => <span className="text-xs text-gray-600">{u.role ?? '—'}</span> },
     { key: 'mobile', header: 'Phone', render: u => <span className="text-xs font-mono">{u.mobile ?? '—'}</span> },
     {
+      key: 'fcm', header: 'FCM',
+      render: u => u.fcmToken
+        ? <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700">✅ Ready</span>
+        : <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-500">❌ No token</span>,
+    },
+    {
       key: 'verification', header: 'Verification',
       render: u => <VerificationBadge status={u.verificationStatus} />,
     },

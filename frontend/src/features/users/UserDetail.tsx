@@ -202,6 +202,19 @@ export function UserDetail({ user, onClose }: Props) {
               value={<span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5 text-gray-400" />{formatDate(user.createdAt)}</span>}
             />
             <DetailField label="Last Active" value={timeAgo(user.lastLoginAt)} />
+            <div className="col-span-2 flex flex-col gap-0.5">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">FCM Token (Push Notifications)</p>
+              {user.fcmToken ? (
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-700">✅ Token registered</span>
+                  <span className="text-[10px] font-mono text-gray-400 truncate max-w-[240px]">{user.fcmToken.slice(0, 32)}…</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-600">❌ No token — notifications won't reach this device</span>
+                </div>
+              )}
+            </div>
           </DetailSection>
 
           {/* Verification actions */}
