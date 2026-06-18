@@ -1,0 +1,9 @@
+{
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "zyppi-functions",
+      "ignore": ["node_modules", "*.local"]
+    }
+  ]
+}
