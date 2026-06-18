@@ -9,7 +9,7 @@ import { DataTable, type Column } from '@/components/shared/DataTable';
 import { VerificationBadge } from '@/components/shared/StatusBadge';
 import { formatDate, timeAgo } from '@/lib/utils/formatters';
 import type { UserModel } from '@/lib/types';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { UserDetail } from './UserDetail';
 
 async function fetchUsers(): Promise<UserModel[]> {
@@ -22,19 +22,30 @@ export function UsersShell() {
   const { settings, update } = useAdminSettings();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [selected, setSelected] = useState<UserModel | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const qc = useQueryClient();
 
   const { data = [], isLoading } = useQuery({ queryKey: ['users'], queryFn: fetchUsers, enabled: settings.fetchUsers });
+  const selectedUser = data.find(u => u.userId === selectedId) ?? null;
 
   if (!settings.fetchUsers) {
     return <FetchPaused onEnable={() => update('fetchUsers', true)} />;
   }
 
+  const [actionResult, setActionResult] = useState<{ uid: string; label: string } | null>(null);
+
   const updateVerification = useMutation({
     mutationFn: ({ uid, status }: { uid: string; status: string }) =>
       updateDoc(doc(db, COLLECTIONS.users, uid), { verificationStatus: status }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: (_data, { uid, status }) => {
+      qc.invalidateQueries({ queryKey: ['users'] });
+      setActionResult({ uid, label: status === 'approved' ? '✅ Approved' : '❌ Rejected' });
+      setTimeout(() => setActionResult(null), 2500);
+    },
+    onError: (_err, { uid }) => {
+      setActionResult({ uid, label: '⚠️ Failed' });
+      setTimeout(() => setActionResult(null), 2500);
+    },
   });
 
   const filtered = data.filter(u => {
@@ -87,29 +98,36 @@ export function UsersShell() {
     },
     {
       key: 'actions', header: '',
-      render: u => (
+      render: u => {
+        const isPending = updateVerification.isPending && updateVerification.variables?.uid === u.userId;
+        const result = actionResult?.uid === u.userId ? actionResult.label : null;
+        return (
         <div className="flex items-center gap-1">
-          {u.verificationStatus === 'submitted' && (
+          {u.verificationStatus === 'submitted' && !result && (
             <>
               <button
                 onClick={e => { e.stopPropagation(); updateVerification.mutate({ uid: u.userId, status: 'approved' }); }}
-                className="rounded p-1 text-green-600 hover:bg-green-50 transition-colors" title="Approve">
-                <CheckCircle className="h-4 w-4" />
+                disabled={isPending}
+                className="rounded p-1 text-green-600 hover:bg-green-50 disabled:opacity-50 transition-colors" title="Approve">
+                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
               </button>
               <button
                 onClick={e => { e.stopPropagation(); updateVerification.mutate({ uid: u.userId, status: 'rejected' }); }}
-                className="rounded p-1 text-red-500 hover:bg-red-50 transition-colors" title="Reject">
-                <XCircle className="h-4 w-4" />
+                disabled={isPending}
+                className="rounded p-1 text-red-500 hover:bg-red-50 disabled:opacity-50 transition-colors" title="Reject">
+                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
               </button>
             </>
           )}
+          {result && <span className="text-[11px] font-medium text-gray-700">{result}</span>}
           <button
-            onClick={e => { e.stopPropagation(); setSelected(u); }}
+            onClick={e => { e.stopPropagation(); setSelectedId(u.userId); }}
             className="rounded px-2 py-1 text-xs text-indigo-600 hover:bg-indigo-50 font-medium transition-colors">
             View →
           </button>
         </div>
-      ),
+        );
+      },
     },
   ];
 
@@ -137,10 +155,10 @@ export function UsersShell() {
         searchValue={search}
         rowKey={u => u.userId}
         emptyText="No users found"
-        onRowClick={setSelected}
+        onRowClick={u => setSelectedId(u.userId)}
       />
 
-      <UserDetail user={selected} onClose={() => setSelected(null)} />
+      <UserDetail user={selectedUser} onClose={() => setSelectedId(null)} />
     </div>
   );
 }

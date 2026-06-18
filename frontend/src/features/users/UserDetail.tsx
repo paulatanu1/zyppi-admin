@@ -52,6 +52,7 @@ export function UserDetail({ user, onClose }: Props) {
   React.useEffect(() => {
     setEditingMobile(false);
     setMobileError('');
+    setVerifyLabel('');
   }, [user?.userId]);
 
   const { data: vehicles = [] } = useQuery({
@@ -78,12 +79,25 @@ export function UserDetail({ user, onClose }: Props) {
     },
   });
 
+  const [verifyLabel, setVerifyLabel] = useState('');
+
   const updateVerification = useMutation({
     mutationFn: (status: string) =>
       updateDoc(doc(db, COLLECTIONS.users, user!.userId), { verificationStatus: status }),
-    onSuccess: () => {
+    onSuccess: (_data, status) => {
       qc.invalidateQueries({ queryKey: ['users'] });
       qc.invalidateQueries({ queryKey: ['user-bookings', user?.userId] });
+      const labels: Record<string, string> = {
+        approved: '✅ Approved successfully',
+        rejected: '❌ Rejected',
+        pending: '↩️ Reset to pending',
+      };
+      setVerifyLabel(labels[status] ?? 'Updated');
+      setTimeout(() => setVerifyLabel(''), 3000);
+    },
+    onError: () => {
+      setVerifyLabel('Failed — try again');
+      setTimeout(() => setVerifyLabel(''), 3000);
     },
   });
 
@@ -218,40 +232,55 @@ export function UserDetail({ user, onClose }: Props) {
           </DetailSection>
 
           {/* Verification actions */}
-          {user.verificationStatus && (
-            <div className="px-6 py-4 border-b border-gray-100">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-3">Verification</p>
-              <div className="flex items-center gap-3">
-                <VerificationBadge status={user.verificationStatus} />
-                <div className="flex gap-2">
-                  {user.verificationStatus !== 'approved' && (
-                    <button
-                      onClick={() => updateVerification.mutate('approved')}
-                      className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 transition-colors"
-                    >
-                      <CheckCircle className="h-3.5 w-3.5" /> Approve
-                    </button>
-                  )}
-                  {user.verificationStatus !== 'rejected' && (
-                    <button
-                      onClick={() => updateVerification.mutate('rejected')}
-                      className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 transition-colors"
-                    >
-                      <XCircle className="h-3.5 w-3.5" /> Reject
-                    </button>
-                  )}
-                  {user.verificationStatus !== 'pending' && (
-                    <button
-                      onClick={() => updateVerification.mutate('pending')}
-                      className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-                    >
-                      Reset to Pending
-                    </button>
-                  )}
-                </div>
+          <div className="px-6 py-4 border-b border-gray-100">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-3">Verification</p>
+            <div className="flex items-center gap-3 flex-wrap">
+              <VerificationBadge status={user.verificationStatus ?? 'pending'} />
+              <div className="flex gap-2">
+                {user.verificationStatus !== 'approved' && (
+                  <button
+                    onClick={() => updateVerification.mutate('approved')}
+                    disabled={updateVerification.isPending}
+                    className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {updateVerification.isPending
+                      ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      : <CheckCircle className="h-3.5 w-3.5" />}
+                    Approve
+                  </button>
+                )}
+                {user.verificationStatus !== 'rejected' && (
+                  <button
+                    onClick={() => updateVerification.mutate('rejected')}
+                    disabled={updateVerification.isPending}
+                    className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {updateVerification.isPending
+                      ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      : <XCircle className="h-3.5 w-3.5" />}
+                    Reject
+                  </button>
+                )}
+                {user.verificationStatus !== 'pending' && (
+                  <button
+                    onClick={() => updateVerification.mutate('pending')}
+                    disabled={updateVerification.isPending}
+                    className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {updateVerification.isPending
+                      ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      : null}
+                    Reset to Pending
+                  </button>
+                )}
               </div>
+              {verifyLabel && (
+                <span className={`text-xs font-medium ${verifyLabel.startsWith('Failed') ? 'text-red-600' : 'text-green-700'}`}>
+                  {verifyLabel}
+                </span>
+              )}
             </div>
-          )}
+          </div>
 
           {/* Vehicles & Documents */}
           {vehicles.length > 0 && (

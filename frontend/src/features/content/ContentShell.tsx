@@ -11,7 +11,7 @@ import { COLLECTIONS } from '@/lib/firebase/collections';
 import { DataTable, type Column } from '@/components/shared/DataTable';
 import { formatDate } from '@/lib/utils/formatters';
 import type { BannerModel, OfferModel } from '@/lib/types';
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Trash2, ToggleLeft, ToggleRight, Loader2 } from 'lucide-react';
 
 type Tab = 'banners' | 'offers' | 'offer_banners';
 
@@ -28,15 +28,21 @@ function BannersTab() {
     },
   });
 
+  const [bannerMsg, setBannerMsg] = useState('');
+
+  function flash(msg: string) { setBannerMsg(msg); setTimeout(() => setBannerMsg(''), 2500); }
+
   const toggleActive = useMutation({
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
       updateDoc(doc(db, COLLECTIONS.banners, id), { isActive: !isActive }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['banners'] }),
+    onSuccess: (_d, { isActive }) => { qc.invalidateQueries({ queryKey: ['banners'] }); flash(isActive ? '⏸ Banner deactivated' : '✅ Banner activated'); },
+    onError: () => flash('❌ Failed to update'),
   });
 
   const deleteBanner = useMutation({
     mutationFn: (id: string) => deleteDoc(doc(db, COLLECTIONS.banners, id)),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['banners'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['banners'] }); flash('🗑 Banner deleted'); },
+    onError: () => flash('❌ Failed to delete'),
   });
 
   const filtered = data.filter(b => !search || b.title?.toLowerCase().includes(search.toLowerCase()));
@@ -60,27 +66,34 @@ function BannersTab() {
     {
       key: 'active', header: 'Active',
       render: b => (
-        <button onClick={() => toggleActive.mutate({ id: b.id, isActive: b.isActive ?? false })}
-          className={`text-sm ${b.isActive ? 'text-green-600' : 'text-gray-400'}`}>
-          {b.isActive ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
+        <button
+          onClick={() => toggleActive.mutate({ id: b.id, isActive: b.isActive ?? false })}
+          disabled={toggleActive.isPending}
+          className={`text-sm disabled:opacity-50 transition-colors ${b.isActive ? 'text-green-600' : 'text-gray-400'}`}>
+          {toggleActive.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : b.isActive ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
         </button>
       ),
     },
     {
       key: 'actions', header: '',
       render: b => (
-        <button onClick={() => { if (confirm('Delete banner?')) deleteBanner.mutate(b.id); }}
-          className="rounded p-1 text-red-400 hover:bg-red-50 transition-colors">
-          <Trash2 className="h-4 w-4" />
+        <button
+          onClick={() => { if (confirm('Delete banner?')) deleteBanner.mutate(b.id); }}
+          disabled={deleteBanner.isPending}
+          className="rounded p-1 text-red-400 hover:bg-red-50 disabled:opacity-50 transition-colors">
+          {deleteBanner.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
         </button>
       ),
     },
   ];
 
   return (
-    <DataTable data={filtered} columns={columns} loading={isLoading}
-      searchPlaceholder="Search banners..." onSearch={setSearch} searchValue={search}
-      rowKey={b => b.id} emptyText="No banners found" />
+    <div className="space-y-2">
+      {bannerMsg && <p className="text-xs font-medium text-gray-700 bg-gray-50 rounded-lg px-3 py-2">{bannerMsg}</p>}
+      <DataTable data={filtered} columns={columns} loading={isLoading}
+        searchPlaceholder="Search banners..." onSearch={setSearch} searchValue={search}
+        rowKey={b => b.id} emptyText="No banners found" />
+    </div>
   );
 }
 
@@ -99,6 +112,9 @@ function OffersTab() {
     },
   });
 
+  const [offerMsg, setOfferMsg] = useState('');
+  function flashOffer(msg: string) { setOfferMsg(msg); setTimeout(() => setOfferMsg(''), 2500); }
+
   const createOffer = useMutation({
     mutationFn: () => addDoc(collection(db, COLLECTIONS.offers), {
       code: form.code.toUpperCase(),
@@ -107,18 +123,26 @@ function OffersTab() {
       isActive: true,
       createdAt: serverTimestamp(),
     }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['offers'] }); setShowForm(false); setForm({ code: '', discount: '', minBookingAmount: '' }); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['offers'] });
+      setShowForm(false);
+      setForm({ code: '', discount: '', minBookingAmount: '' });
+      flashOffer('✅ Promo code created');
+    },
+    onError: () => flashOffer('❌ Failed to create'),
   });
 
   const toggleActive = useMutation({
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
       updateDoc(doc(db, COLLECTIONS.offers, id), { isActive: !isActive }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['offers'] }),
+    onSuccess: (_d, { isActive }) => { qc.invalidateQueries({ queryKey: ['offers'] }); flashOffer(isActive ? '⏸ Offer deactivated' : '✅ Offer activated'); },
+    onError: () => flashOffer('❌ Failed to update'),
   });
 
   const deleteOffer = useMutation({
     mutationFn: (id: string) => deleteDoc(doc(db, COLLECTIONS.offers, id)),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['offers'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['offers'] }); flashOffer('🗑 Offer deleted'); },
+    onError: () => flashOffer('❌ Failed to delete'),
   });
 
   const filtered = data.filter(o => !search || o.code?.toLowerCase().includes(search.toLowerCase()));
@@ -131,18 +155,22 @@ function OffersTab() {
     {
       key: 'active', header: 'Active',
       render: o => (
-        <button onClick={() => toggleActive.mutate({ id: o.id, isActive: o.isActive ?? false })}
-          className={o.isActive ? 'text-green-600' : 'text-gray-400'}>
-          {o.isActive ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
+        <button
+          onClick={() => toggleActive.mutate({ id: o.id, isActive: o.isActive ?? false })}
+          disabled={toggleActive.isPending}
+          className={`disabled:opacity-50 transition-colors ${o.isActive ? 'text-green-600' : 'text-gray-400'}`}>
+          {toggleActive.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : o.isActive ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
         </button>
       ),
     },
     {
       key: 'actions', header: '',
       render: o => (
-        <button onClick={() => { if (confirm('Delete offer?')) deleteOffer.mutate(o.id); }}
-          className="rounded p-1 text-red-400 hover:bg-red-50 transition-colors">
-          <Trash2 className="h-4 w-4" />
+        <button
+          onClick={() => { if (confirm('Delete offer?')) deleteOffer.mutate(o.id); }}
+          disabled={deleteOffer.isPending}
+          className="rounded p-1 text-red-400 hover:bg-red-50 disabled:opacity-50 transition-colors">
+          {deleteOffer.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
         </button>
       ),
     },
@@ -169,8 +197,10 @@ function OffersTab() {
           </div>
           <div className="mt-3 flex gap-2">
             <button onClick={() => createOffer.mutate()}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 transition-colors">
-              Create
+              disabled={createOffer.isPending}
+              className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors">
+              {createOffer.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              {createOffer.isPending ? 'Creating...' : 'Create'}
             </button>
             <button onClick={() => setShowForm(false)}
               className="rounded-lg border border-gray-200 px-4 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
@@ -179,6 +209,7 @@ function OffersTab() {
           </div>
         </div>
       )}
+      {offerMsg && <p className="text-xs font-medium text-gray-700 bg-gray-50 rounded-lg px-3 py-2">{offerMsg}</p>}
       <DataTable data={filtered} columns={columns} loading={isLoading}
         searchPlaceholder="Search promo codes..." onSearch={setSearch} searchValue={search}
         rowKey={o => o.id} emptyText="No offers found"
