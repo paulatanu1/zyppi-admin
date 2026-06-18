@@ -72,10 +72,19 @@ export function UsersShell() {
     },
     {
       key: 'verification', header: 'Verification',
-      render: u => <VerificationBadge status={u.verificationStatus} />,
+      render: u => u.verificationStatus
+        ? <VerificationBadge status={u.verificationStatus} />
+        : <span className="text-xs text-gray-400">Not set</span>,
     },
     { key: 'joined', header: 'Joined', render: u => <span className="text-xs text-gray-500">{formatDate(u.createdAt)}</span> },
-    { key: 'lastSeen', header: 'Last Active', render: u => <span className="text-xs text-gray-500">{timeAgo(u.lastLoginAt)}</span> },
+    {
+      key: 'lastSeen', header: 'Last Active',
+      render: u => (
+        <span className="text-xs text-gray-500">
+          {u.lastLoginAt ? timeAgo(u.lastLoginAt) : <span className="text-gray-300">Not tracked</span>}
+        </span>
+      ),
+    },
     {
       key: 'actions', header: '',
       render: u => (
