@@ -3,10 +3,16 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { AdminSettingsProvider, useAdminSettings } from '@/lib/context/AdminSettingsContext';
 
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { staleTime: 30_000, retry: 1 } },
-});
+function makeQueryClient(refetchOnWindowFocus: boolean) {
+  return new QueryClient({
+    defaultOptions: { queries: { staleTime: 30_000, retry: 1, refetchOnWindowFocus } },
+  });
+}
+
+// Single instance per page — recreated only when refetchOnWindowFocus changes
+let queryClient = makeQueryClient(false);
 
 interface AdminShellProps {
   title: string;
@@ -48,10 +54,24 @@ function ShellInner({ title, subtitle, currentPath, children }: AdminShellProps)
   );
 }
 
-export function AdminShell(props: AdminShellProps) {
+function ShellWithSettings(props: AdminShellProps) {
+  const { settings } = useAdminSettings();
+  // Recreate QueryClient if window-focus refetch setting changes
+  React.useEffect(() => {
+    queryClient = makeQueryClient(settings.refetchOnWindowFocus);
+  }, [settings.refetchOnWindowFocus]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ShellInner {...props} />
     </QueryClientProvider>
+  );
+}
+
+export function AdminShell(props: AdminShellProps) {
+  return (
+    <AdminSettingsProvider>
+      <ShellWithSettings {...props} />
+    </AdminSettingsProvider>
   );
 }

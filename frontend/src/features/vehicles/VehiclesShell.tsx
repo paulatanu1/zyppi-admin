@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAdminSettings } from '@/lib/context/AdminSettingsContext';
+import { FetchPaused } from '@/components/shared/FetchPaused';
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { COLLECTIONS } from '@/lib/firebase/collections';
@@ -17,13 +19,18 @@ async function fetchVehicles(): Promise<VehicleModel[]> {
 }
 
 export function VehiclesShell() {
+  const { settings, update } = useAdminSettings();
   const [search, setSearch] = useState('');
   const [docFilter, setDocFilter] = useState('all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const qc = useQueryClient();
 
-  const { data = [], isLoading } = useQuery({ queryKey: ['vehicles'], queryFn: fetchVehicles });
+  const { data = [], isLoading } = useQuery({ queryKey: ['vehicles'], queryFn: fetchVehicles, enabled: settings.fetchVehicles });
   const selectedVehicle = data.find(v => v.vehicleId === selectedId) ?? null;
+
+  if (!settings.fetchVehicles) {
+    return <FetchPaused onEnable={() => update('fetchVehicles', true)} />;
+  }
 
   const updateDocStatus = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>

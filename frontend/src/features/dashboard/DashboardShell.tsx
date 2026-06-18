@@ -1,5 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useAdminSettings } from '@/lib/context/AdminSettingsContext';
+import { FetchPaused } from '@/components/shared/FetchPaused';
 import {
   collection, getDocs, query, where, orderBy, limit, Timestamp,
 } from 'firebase/firestore';
@@ -78,10 +80,16 @@ async function fetchDashboardStats() {
 }
 
 export function DashboardShell() {
+  const { settings, update } = useAdminSettings();
   const { data, isLoading } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: fetchDashboardStats,
+    enabled: settings.fetchDashboard,
   });
+
+  if (!settings.fetchDashboard) {
+    return <FetchPaused onEnable={() => update('fetchDashboard', true)} />;
+  }
 
   return (
     <div className="space-y-6">

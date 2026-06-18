@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAdminSettings } from '@/lib/context/AdminSettingsContext';
+import { FetchPaused } from '@/components/shared/FetchPaused';
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { COLLECTIONS } from '@/lib/firebase/collections';
@@ -17,12 +19,17 @@ async function fetchUsers(): Promise<UserModel[]> {
 }
 
 export function UsersShell() {
+  const { settings, update } = useAdminSettings();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selected, setSelected] = useState<UserModel | null>(null);
   const qc = useQueryClient();
 
-  const { data = [], isLoading } = useQuery({ queryKey: ['users'], queryFn: fetchUsers });
+  const { data = [], isLoading } = useQuery({ queryKey: ['users'], queryFn: fetchUsers, enabled: settings.fetchUsers });
+
+  if (!settings.fetchUsers) {
+    return <FetchPaused onEnable={() => update('fetchUsers', true)} />;
+  }
 
   const updateVerification = useMutation({
     mutationFn: ({ uid, status }: { uid: string; status: string }) =>

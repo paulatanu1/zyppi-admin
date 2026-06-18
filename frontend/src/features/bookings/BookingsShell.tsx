@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useAdminSettings } from '@/lib/context/AdminSettingsContext';
+import { FetchPaused } from '@/components/shared/FetchPaused';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { COLLECTIONS } from '@/lib/firebase/collections';
@@ -24,10 +26,15 @@ async function fetchBookings(): Promise<BookingModel[]> {
 }
 
 export function BookingsShell() {
+  const { settings, update } = useAdminSettings();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const { data = [], isLoading } = useQuery({ queryKey: ['bookings'], queryFn: fetchBookings });
+  const { data = [], isLoading } = useQuery({ queryKey: ['bookings'], queryFn: fetchBookings, enabled: settings.fetchBookings });
+
+  if (!settings.fetchBookings) {
+    return <FetchPaused onEnable={() => update('fetchBookings', true)} />;
+  }
 
   const filtered = data.filter(b => {
     const matchSearch = !search ||

@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { COLLECTIONS } from '@/lib/firebase/collections';
 import { OnlineBadge } from '@/components/shared/StatusBadge';
+import { FetchPaused } from '@/components/shared/FetchPaused';
+import { useAdminSettings } from '@/lib/context/AdminSettingsContext';
 import type { VehicleModel } from '@/lib/types';
 
 const MAPS_KEY = import.meta.env.PUBLIC_MAPS_API_KEY;
@@ -65,12 +67,18 @@ function GoogleMapComponent({ vehicles }: { vehicles: LiveVehicle[] }) {
 }
 
 export function DriversMapShell() {
+  const { settings, update } = useAdminSettings();
   const [mapsLoaded, setMapsLoaded] = useState(false);
   const [vehicles, setVehicles] = useState<LiveVehicle[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Real-time listener on vehicles — no polling needed
+  // Real-time listener — only active when liveDriverTracking is enabled
   useEffect(() => {
+    if (!settings.liveDriverTracking) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     const unsub = onSnapshot(
       collection(db, COLLECTIONS.vehicles),
       snap => {
@@ -81,7 +89,11 @@ export function DriversMapShell() {
       () => setLoading(false),
     );
     return unsub;
-  }, []);
+  }, [settings.liveDriverTracking]);
+
+  if (!settings.liveDriverTracking) {
+    return <FetchPaused onEnable={() => update('liveDriverTracking', true)} />;
+  }
 
   useEffect(() => {
     if (window.google) { setMapsLoaded(true); return; }

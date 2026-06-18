@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useAdminSettings } from '@/lib/context/AdminSettingsContext';
+import { FetchPaused } from '@/components/shared/FetchPaused';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { COLLECTIONS } from '@/lib/firebase/collections';
@@ -117,7 +119,13 @@ function FeedbacksTab() {
 }
 
 export function SupportShell() {
+  const { settings, update } = useAdminSettings();
   const [tab, setTab] = useState<'complaints' | 'feedbacks'>('complaints');
+
+  if (!settings.fetchSupport) {
+    return <FetchPaused onEnable={() => update('fetchSupport', true)} />;
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex gap-1 rounded-xl border border-gray-200 bg-white p-1 w-fit">

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAdminSettings } from '@/lib/context/AdminSettingsContext';
+import { FetchPaused } from '@/components/shared/FetchPaused';
 import {
   collection, getDocs, addDoc, updateDoc, deleteDoc,
   doc, serverTimestamp, orderBy, query,
@@ -193,7 +195,13 @@ function OffersTab() {
 
 // ── Shell ─────────────────────────────────────────────────────────────────────
 export function ContentShell() {
+  const { settings, update } = useAdminSettings();
   const [tab, setTab] = useState<Tab>('banners');
+
+  if (!settings.fetchContent) {
+    return <FetchPaused onEnable={() => update('fetchContent', true)} />;
+  }
+
   const TABS: { key: Tab; label: string }[] = [
     { key: 'banners', label: 'Banners' },
     { key: 'offers', label: 'Promo Codes' },
