@@ -14,7 +14,9 @@ import { UserDetail } from './UserDetail';
 
 async function fetchUsers(): Promise<UserModel[]> {
   const snap = await getDocs(collection(db, COLLECTIONS.users));
-  return snap.docs.map(d => ({ userId: d.id, ...d.data() } as UserModel))
+  return snap.docs
+    .map(d => ({ userId: d.id, ...d.data() } as UserModel))
+    .filter(u => !u.isAdmin)
     .sort((a, b) => (b.createdAt?.toMillis() ?? 0) - (a.createdAt?.toMillis() ?? 0));
 }
 
