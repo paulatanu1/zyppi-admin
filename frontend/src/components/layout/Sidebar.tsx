@@ -2,18 +2,19 @@ import React from 'react';
 import { cn } from '@/lib/utils/cn';
 import {
   LayoutDashboard, Users, CalendarCheck, Car, MapPin,
-  Image, HeadphonesIcon, LogOut, Zap, ChevronRight, Settings,
+  Image, HeadphonesIcon, LogOut, Zap, ChevronRight, Settings, Bell,
 } from 'lucide-react';
 
 const NAV = [
-  { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { label: 'Users', href: '/admin/users', icon: Users },
-  { label: 'Bookings', href: '/admin/bookings', icon: CalendarCheck },
-  { label: 'Vehicles', href: '/admin/vehicles', icon: Car },
-  { label: 'Live Drivers', href: '/admin/drivers', icon: MapPin },
-  { label: 'Content', href: '/admin/content', icon: Image },
-  { label: 'Support', href: '/admin/support', icon: HeadphonesIcon },
-  { label: 'Settings', href: '/admin/settings', icon: Settings },
+  { label: 'Dashboard',      href: '/admin',               icon: LayoutDashboard },
+  { label: 'Users',          href: '/admin/users',          icon: Users },
+  { label: 'Bookings',       href: '/admin/bookings',       icon: CalendarCheck },
+  { label: 'Vehicles',       href: '/admin/vehicles',       icon: Car },
+  { label: 'Live Drivers',   href: '/admin/drivers',        icon: MapPin },
+  { label: 'Content',        href: '/admin/content',        icon: Image },
+  { label: 'Support',        href: '/admin/support',        icon: HeadphonesIcon },
+  { label: 'Notifications',  href: '/admin/notifications',  icon: Bell },
+  { label: 'Settings',       href: '/admin/settings',       icon: Settings },
 ];
 
 interface SidebarProps {

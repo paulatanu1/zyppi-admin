@@ -116,6 +116,29 @@ export interface OfferBannerModel {
   expiryDate?: Timestamp;
 }
 
+// ── Push Notification ─────────────────────────────────────────────────────────
+export type NotificationTarget = 'all' | 'topic' | 'token';
+export type NotificationStatus = 'queued' | 'sending' | 'sent' | 'failed';
+
+export interface AdminNotification {
+  id: string;
+  title: string;
+  body: string;
+  imageUrl?: string;
+  target: NotificationTarget;
+  topic?: string;
+  token?: string;
+  targetUserId?: string;
+  targetUserName?: string;
+  data?: Record<string, string>;
+  status: NotificationStatus;
+  sentCount?: number;
+  errorMessage?: string;
+  createdAt?: Timestamp;
+  sentAt?: Timestamp;
+  createdBy?: string;
+}
+
 // ── Support ───────────────────────────────────────────────────────────────────
 export interface ComplaintModel {
   id: string;

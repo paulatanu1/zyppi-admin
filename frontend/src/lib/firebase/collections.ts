@@ -12,4 +12,5 @@ export const COLLECTIONS = {
   agreements: 'agreements',
   complaints: 'complaints',
   feedbacks: 'feedbacks',
+  adminNotifications: 'adminNotifications',
 } as const;
