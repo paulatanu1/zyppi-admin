@@ -234,6 +234,15 @@ export function SettingsShell() {
         />
 
         <SettingRow
+          label="Contact Email Log"
+          description="getDocs on the contact collection when the Contact Log page loads — one read per website contact submission."
+          note="Low cost unless the contact form gets heavy traffic."
+          impact="low"
+          checked={settings.fetchContact}
+          onChange={() => toggle('fetchContact')}
+        />
+
+        <SettingRow
           label="Content (Banners & Offers)"
           description="getDocs on banners and offers collections when the Content page loads."
           note="Typically tiny collections. Cheapest section — safe to leave on always."

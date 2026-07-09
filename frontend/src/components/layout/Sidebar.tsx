@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from '@/lib/utils/cn';
 import {
   LayoutDashboard, Users, CalendarCheck, Car, MapPin,
-  Image, HeadphonesIcon, LogOut, Zap, ChevronRight, Settings, Bell,
+  Image, HeadphonesIcon, LogOut, Zap, ChevronRight, Settings, Bell, Mail,
 } from 'lucide-react';
 
 const NAV = [
@@ -13,6 +13,7 @@ const NAV = [
   { label: 'Live Drivers',   href: '/admin/drivers',        icon: MapPin },
   { label: 'Content',        href: '/admin/content',        icon: Image },
   { label: 'Support',        href: '/admin/support',        icon: HeadphonesIcon },
+  { label: 'Contact Log',    href: '/admin/contact-email-log', icon: Mail },
   { label: 'Notifications',  href: '/admin/notifications',  icon: Bell },
   { label: 'Settings',       href: '/admin/settings',       icon: Settings },
 ];

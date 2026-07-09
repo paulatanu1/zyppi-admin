@@ -1,0 +1,364 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+
+    // Admin check — used by the web admin panel
+    function isAdmin() {
+      return request.auth != null &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    function isVehicleOwner(vehicleId) {
+      return request.auth != null &&
+             get(/databases/$(database)/documents/vehicles/$(vehicleId)).data.userId == request.auth.uid;
+    }
+
+    // Check if user has approved verification status
+    function isUserVerified(userId) {
+      return exists(/databases/$(database)/documents/users/$(userId)) &&
+             get(/databases/$(database)/documents/users/$(userId)).data.verificationStatus == 'approved';
+    }
+
+    // Check if user is trying to go online
+    function isGoingOnline() {
+      return request.resource.data.isOnline == true &&
+             (!('isOnline' in resource.data) || resource.data.isOnline == false);
+    }
+
+    // ============================================
+    // USERS COLLECTION
+    // ============================================
+    match /users/{userId} {
+      // Any authenticated user can read their own document; admins can read all
+      allow read: if (request.auth != null && request.auth.uid == userId) || isAdmin();
+
+      // User can create their own document but cannot self-assign privileged fields
+      allow create: if request.auth != null && request.auth.uid == userId &&
+                     !('isAdmin' in request.resource.data) &&
+                     request.resource.data.get('verificationStatus', 'pending') == 'pending';
+
+      // User can update their own document but cannot escalate privileges.
+      // verificationStatus: user may only advance to 'submitted' from pending/rejected;
+      // all other verificationStatus changes are admin-only.
+      allow update: if request.auth != null && request.auth.uid == userId &&
+                     !('isAdmin' in request.resource.data.diff(resource.data).affectedKeys()) &&
+                     (!('verificationStatus' in request.resource.data.diff(resource.data).affectedKeys()) ||
+                      (request.resource.data.verificationStatus == 'submitted' &&
+                       resource.data.verificationStatus in ['pending', 'rejected']));
+
+      // In-app notification history (written by backend/Cloud Functions, read by owner)
+      match /notifications/{notifId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        // Clients can only mark as read or delete — not create (Cloud Functions create them)
+        allow update: if request.auth != null && request.auth.uid == userId &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
+        allow delete: if request.auth != null && request.auth.uid == userId;
+        allow create: if false; // created server-side only
+      }
+
+      // Saved addresses subcollection — owner full CRUD
+      match /savedAddresses/{addressId} {
+        allow read, create, update, delete: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // ============================================
+    // VEHICLES COLLECTION
+    // ============================================
+    match /vehicles/{vehicleId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow read: if request.auth != null;
+      allow update, delete: if isAdmin();
+
+      // Update rules: owner can update, but going online requires the vehicle's
+      // own documentStatus to already be 'approved' (set by admin).
+      // Checking resource.data (existing doc) keeps this consistent with the
+      // client-side eligibility check which also reads vehicle.documentStatus.
+      allow update: if request.auth != null &&
+                      request.auth.uid == resource.data.userId &&
+                      (!isGoingOnline() || resource.data.documentStatus == 'approved');
+
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+
+      // Documents subcollection
+      match /documents/{documentId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null && isVehicleOwner(vehicleId);
+        allow update, delete: if request.auth != null && isVehicleOwner(vehicleId);
+      }
+
+      // Blocked dates subcollection
+      match /blocked_dates/{dateId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null && isVehicleOwner(vehicleId);
+        allow update, delete: if request.auth != null && isVehicleOwner(vehicleId);
+      }
+
+      // Schedules subcollection
+      match /schedules/{scheduleId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null && isVehicleOwner(vehicleId);
+        allow update, delete: if request.auth != null && isVehicleOwner(vehicleId);
+      }
+
+      // Vehicle Availability Settings
+      match /settings/{document=**} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && isVehicleOwner(vehicleId);
+      }
+    }
+
+    // ============================================
+    // BOOKINGS COLLECTION
+    // ============================================
+    match /bookings/{bookingId} {
+      // Admin can read and update all bookings
+      allow read, update: if isAdmin();
+      // Helper to check if user is the booking owner (rider)
+      function isBookingUser() {
+        return request.auth != null && resource.data.userId == request.auth.uid;
+      }
+
+      // Helper to check if user is the driver
+      function isBookingDriver() {
+        return request.auth != null && resource.data.driver.driverId == request.auth.uid;
+      }
+
+      // Validate booking creation
+      function isValidBookingCreate() {
+        let data = request.resource.data;
+        return data.userId == request.auth.uid &&
+               data.keys().hasAll(['userId', 'userPhone', 'userName', 'bookingType',
+                                   'status', 'pickupLocation', 'dropLocation',
+                                   'vehicle', 'driver', 'fareDetails', 'paymentMethod',
+                                   'paymentStatus', 'createdAt', 'updatedAt']) &&
+               data.status == 'pending';
+      }
+
+      // Users can read their own bookings, drivers can read assigned bookings,
+      // and vehicle owners can read bookings for their vehicles (availability screen).
+      allow read: if request.auth != null &&
+                    (resource.data.userId == request.auth.uid ||
+                     resource.data.driver.driverId == request.auth.uid ||
+                     (resource.data.vehicleId is string &&
+                      get(/databases/$(database)/documents/vehicles/$(resource.data.vehicleId)).data.userId == request.auth.uid));
+
+      // Only authenticated users can create bookings for themselves
+      allow create: if request.auth != null && isValidBookingCreate();
+
+      // User can only cancel (set status=cancelled) or add a rating
+      allow update: if request.auth != null && isBookingUser() &&
+                     request.resource.data.diff(resource.data).affectedKeys()
+                       .hasOnly(['status', 'cancellationReason', 'cancelledBy',
+                                 'cancelledAt', 'cancellationFee', 'updatedAt',
+                                 'userRating', 'userReview']) &&
+                     (resource.data.status in ['pending', 'confirmed'] ||
+                      request.resource.data.diff(resource.data).affectedKeys()
+                        .hasOnly(['userRating', 'userReview', 'updatedAt']));
+
+      // Driver can only update status and ride-lifecycle fields.
+      // fareDetails and paymentStatus are locked once the trip is completed —
+      // only admin can adjust fare or mark payment after that point.
+      allow update: if request.auth != null && isBookingDriver() &&
+                     resource.data.status != 'completed' &&
+                     request.resource.data.diff(resource.data).affectedKeys()
+                       .hasOnly(['status', 'confirmedAt', 'startedAt', 'completedAt',
+                                 'cancelledAt', 'cancellationReason', 'cancelledBy',
+                                 'fareDetails', 'estimatedDistance',
+                                 'estimatedDuration', 'driverRating', 'driverReview',
+                                 'updatedAt']);
+
+      // Driver records manual cash payment after trip completion.
+      // Only receipt fields may change; fare, participants, and status are locked.
+      allow update: if request.auth != null && isBookingDriver() &&
+                     resource.data.status == 'completed' &&
+                     request.resource.data.diff(resource.data).affectedKeys()
+                       .hasOnly(['amountReceived', 'remainingAmount', 'paymentStatus',
+                                 'paymentReceivedAt', 'paymentReceivedBy',
+                                 'paymentRecordedManually', 'updatedAt']);
+
+      // No direct deletes - use status updates instead
+      allow delete: if false;
+    }
+
+    // ============================================
+    // DRIVERS COLLECTION (live location + online status)
+    // ============================================
+    match /drivers/{driverId} {
+      // Only the driver themselves, admins, and the user who has an active booking
+      // with this driver can read live location data. Prevents arbitrary stalking.
+      allow read: if request.auth != null && (
+                    request.auth.uid == driverId ||
+                    isAdmin() ||
+                    (resource.data.currentBookingId != null &&
+                     exists(/databases/$(database)/documents/bookings/$(resource.data.currentBookingId)) &&
+                     get(/databases/$(database)/documents/bookings/$(resource.data.currentBookingId)).data.userId == request.auth.uid)
+                  );
+
+      // Drivers can create their own document (first location update)
+      allow create: if request.auth != null && request.auth.uid == driverId;
+
+      // Drivers can only update their own document, restricted to safe fields
+      allow update: if request.auth != null && request.auth.uid == driverId &&
+                    request.resource.data.diff(resource.data).affectedKeys()
+                      .hasOnly(['latitude', 'longitude', 'heading', 'speed',
+                                'isOnline', 'lastUpdated', 'currentBookingId']);
+
+      allow delete: if false;
+    }
+
+    // ============================================
+    // VEHICLE CATALOG
+    // ============================================
+    match /vehicleCatalog/{document} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ============================================
+    // SEARCH METADATA
+    // Used by VehicleSearchService for dropdown data
+    // (cities, vehicleTypes). Written via arrayUnion
+    // during vehicle registration.
+    // ============================================
+    match /metadata/{document} {
+      allow read: if request.auth != null;
+      // Clients may only touch the known array fields via arrayUnion — full
+      // document creates/overwrites and deletes are not permitted.
+      allow update: if request.auth != null &&
+                     request.resource.data.diff(resource.data).affectedKeys()
+                       .hasOnly(['cities', 'vehicleTypes', 'updatedAt']);
+      allow create: if false; // created by admin/backend only
+      allow delete: if false;
+    }
+
+    // ============================================
+    // BANNERS COLLECTION
+    // ============================================
+    match /banners/{bannerId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // ============================================
+    // OFFERS COLLECTION
+    // ============================================
+    match /offers/{offerId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // ============================================
+    // OFFER BANNERS COLLECTION
+    // ============================================
+    match /offer_banners/{offerBannerId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // ============================================
+    // AGREEMENTS
+    // ============================================
+    match /agreements/{agreementId} {
+      function isOwner() {
+        return request.auth != null &&
+               agreementId.matches(request.auth.uid + '_.*');
+      }
+
+      function isValidAgreement() {
+        let data = request.resource.data;
+        return data.userId == request.auth.uid &&
+               data.keys().hasAll(['userId', 'vehicleId', 'ownerName',
+                                   'vehicleRegistrationNumber', 'vehicleCategory',
+                                   'signatureData', 'agreedToTerms', 'signedAt']) &&
+               data.agreedToTerms == true &&
+               data.signatureData is string;
+      }
+
+      allow read: if isOwner();
+      allow create: if isOwner() && isValidAgreement();
+      allow update, delete: if false;
+    }
+
+    // ============================================
+    // SUPPORT CENTER — COMPLAINTS
+    // ============================================
+    match /complaints/{complaintId} {
+      allow read, update: if isAdmin();
+      function isValidComplaint() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['userId', 'ticketId', 'subject', 'description',
+                                   'priority', 'status', 'createdAt']) &&
+               data.userId is string &&
+               data.ticketId is string &&
+               data.subject is string &&
+               data.description is string &&
+               data.priority in ['Low', 'Medium', 'High'] &&
+               data.status == 'Pending' &&
+               data.userId == request.auth.uid;
+      }
+
+      allow create: if request.auth != null && isValidComplaint();
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ============================================
+    // SUPPORT CENTER — FEEDBACKS
+    // ============================================
+    match /feedbacks/{feedbackId} {
+      allow read: if isAdmin();
+      function isValidFeedback() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['userId', 'feedbackId', 'rating',
+                                   'message', 'createdAt']) &&
+               data.userId is string &&
+               data.feedbackId is string &&
+               data.rating is number &&
+               data.rating >= 1 && data.rating <= 5 &&
+               data.message is string &&
+               data.userId == request.auth.uid;
+      }
+
+      allow create: if request.auth != null && isValidFeedback();
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow update, delete: if false;
+    }
+
+    // ============================================
+    // WEBSITE CONTACT FORM
+    // Public form on zyppi.in/contact — anyone may
+    // submit; only admins may read and resolve.
+    // ============================================
+    match /contact/{contactId} {
+      function isValidContactMessage() {
+        let data = request.resource.data;
+        return data.keys().hasOnly(['name', 'email', 'phone', 'category',
+                                    'subject', 'message', 'status', 'createdAt']) &&
+               data.keys().hasAll(['name', 'email', 'category', 'subject',
+                                   'message', 'status', 'createdAt']) &&
+               data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+               data.email is string && data.email.size() > 0 && data.email.size() <= 320 &&
+               (!('phone' in data.keys()) || (data.phone is string && data.phone.size() <= 30)) &&
+               data.category in ['Ride issue', 'Payment', 'Partnership', 'Other'] &&
+               data.subject is string && data.subject.size() > 0 && data.subject.size() <= 300 &&
+               data.message is string && data.message.size() > 0 && data.message.size() <= 5000 &&
+               data.status == 'new';
+      }
+
+      allow create: if isValidContactMessage();
+      // Admin resolves: may only change status/resolvedAt
+      allow update: if isAdmin() &&
+                     request.resource.data.diff(resource.data).affectedKeys()
+                       .hasOnly(['status', 'resolvedAt']);
+      allow read: if isAdmin();
+      // Admins may delete spam submissions
+      allow delete: if isAdmin();
+    }
+  }
+}

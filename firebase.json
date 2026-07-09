@@ -3,7 +3,16 @@
     {
       "source": "functions",
       "codebase": "zyppi-functions",
-      "ignore": ["node_modules", "*.local"]
+      "ignore": [
+        "node_modules",
+        "*.local"
+      ]
     }
-  ]
+  ],
+  "firestore": {
+    "database": "(default)",
+    "location": "asia-south1",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
 }

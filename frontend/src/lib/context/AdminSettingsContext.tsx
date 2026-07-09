@@ -9,6 +9,7 @@ export interface AdminSettings {
   fetchVehicles: boolean;
   fetchSupport: boolean;
   fetchContent: boolean;
+  fetchContact: boolean;         // website contact form submissions
   refetchOnWindowFocus: boolean; // React Query window-focus refetch
 }
 
@@ -23,6 +24,7 @@ const DEFAULTS: AdminSettings = {
   fetchVehicles: true,
   fetchSupport: true,
   fetchContent: true,
+  fetchContact: true,
   refetchOnWindowFocus: false,
 };
 

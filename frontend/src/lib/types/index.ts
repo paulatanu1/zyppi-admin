@@ -159,3 +159,19 @@ export interface FeedbackModel {
   message?: string;
   createdAt?: Timestamp;
 }
+
+// ── Contact ───────────────────────────────────────────────────────────────────
+export type ContactCategory = 'Ride issue' | 'Payment' | 'Partnership' | 'Other';
+
+export interface ContactMessageModel {
+  id: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  category?: ContactCategory;
+  subject?: string;
+  message?: string;
+  status?: 'new' | 'resolved';
+  createdAt?: Timestamp;
+  resolvedAt?: Timestamp;
+}
