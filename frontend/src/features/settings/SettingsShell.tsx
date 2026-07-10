@@ -4,6 +4,7 @@ import { collection, getDocs, doc, updateDoc, writeBatch } from 'firebase/firest
 import { db } from '@/lib/firebase/client';
 import { COLLECTIONS } from '@/lib/firebase/collections';
 import { cn } from '@/lib/utils/cn';
+import { BrandingSection } from './BrandingSection';
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
   return (
@@ -154,6 +155,8 @@ export function SettingsShell() {
           <li>• <strong>Google Maps API:</strong> separate billing — free up to 28,000 map loads/month</li>
         </ul>
       </div>
+
+      <BrandingSection />
 
       {/* ── Real-time listeners ─────────────────────────────── */}
       <div className="space-y-3">

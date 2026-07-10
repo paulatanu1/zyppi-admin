@@ -331,6 +331,21 @@ service cloud.firestore {
     }
 
     // ============================================
+    // SITE BRANDING (settings/branding)
+    // Holds the logo as a base64 data URL. The
+    // public website reads it to render the logo;
+    // only admins can change it from the panel.
+    // ============================================
+    match /settings/branding {
+      allow read: if true;
+      allow create, update: if isAdmin() &&
+                    request.resource.data.keys().hasOnly(['logoData', 'updatedAt']) &&
+                    request.resource.data.logoData is string &&
+                    request.resource.data.logoData.size() < 1000000;
+      allow delete: if isAdmin();
+    }
+
+    // ============================================
     // ADMIN NOTIFICATIONS QUEUE
     // Admin panel queues a doc here; the Cloud
     // Function (Admin SDK, bypasses rules) sends

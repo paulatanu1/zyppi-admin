@@ -14,4 +14,5 @@ export const COLLECTIONS = {
   feedbacks: 'feedbacks',
   adminNotifications: 'adminNotifications',
   contact: 'contact',
+  settings: 'settings',
 } as const;

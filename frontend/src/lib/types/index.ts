@@ -160,6 +160,12 @@ export interface FeedbackModel {
   createdAt?: Timestamp;
 }
 
+// ── Branding ──────────────────────────────────────────────────────────────────
+export interface BrandingModel {
+  logoData?: string; // base64 data URL, shown across the site and admin panel
+  updatedAt?: Timestamp;
+}
+
 // ── Contact ───────────────────────────────────────────────────────────────────
 export type ContactCategory = 'Ride issue' | 'Payment' | 'Partnership' | 'Other';
 

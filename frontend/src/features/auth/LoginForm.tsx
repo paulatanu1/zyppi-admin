@@ -3,9 +3,11 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase/client';
 import { COLLECTIONS } from '@/lib/firebase/collections';
-import { Zap, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useBrandingLogo } from '@/lib/hooks/useBranding';
 
 export function LoginForm() {
+  const logo = useBrandingLogo();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
@@ -54,8 +56,8 @@ export function LoginForm() {
         <div className="rounded-2xl bg-white shadow-2xl overflow-hidden">
           {/* Header */}
           <div className="px-8 pt-8 pb-6 text-center" style={{ background: 'hsl(243 75% 28%)' }}>
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20">
-              <Zap className="h-7 w-7 text-white" />
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white p-2">
+              <img src={logo} alt="Zyppi logo" className="h-full w-full object-contain" />
             </div>
             <h1 className="text-2xl font-bold text-white">Zyppi Admin</h1>
             <p className="mt-1 text-sm text-white/60">Sign in to your admin account</p>

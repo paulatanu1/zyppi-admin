@@ -2,8 +2,9 @@ import React from 'react';
 import { cn } from '@/lib/utils/cn';
 import {
   LayoutDashboard, Users, CalendarCheck, Car, MapPin,
-  Image, HeadphonesIcon, LogOut, Zap, ChevronRight, Settings, Bell, Mail,
+  Image, HeadphonesIcon, LogOut, ChevronRight, Settings, Bell, Mail,
 } from 'lucide-react';
+import { useBrandingLogo } from '@/lib/hooks/useBranding';
 
 const NAV = [
   { label: 'Dashboard',      href: '/admin',               icon: LayoutDashboard },
@@ -25,6 +26,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ currentPath, onSignOut, userName }: SidebarProps) {
+  const logo = useBrandingLogo();
   const isActive = (href: string) =>
     href === '/admin' ? currentPath === '/admin' : currentPath.startsWith(href);
 
@@ -32,8 +34,8 @@ export function Sidebar({ currentPath, onSignOut, userName }: SidebarProps) {
     <aside className="flex h-screen w-64 flex-col" style={{ background: 'hsl(243 75% 28%)' }}>
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20">
-          <Zap className="h-5 w-5 text-white" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white p-1">
+          <img src={logo} alt="Zyppi logo" className="h-full w-full object-contain" />
         </div>
         <div>
           <p className="text-sm font-bold text-white tracking-wide">ZYPPI</p>

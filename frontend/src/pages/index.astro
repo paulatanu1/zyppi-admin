@@ -1,5 +1,6 @@
 ---
 import '../styles/globals.css';
+import BrandingLogo from '../components/BrandingLogo.astro';
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -7,6 +8,8 @@ import '../styles/globals.css';
   <!-- Primary Meta -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <title>Zyppi – Book Rides, Cabs & Vehicle Rentals Online | India</title>
   <meta name="description" content="Zyppi is India's smart ride-booking app. Book local cabs, outstation trips, bike rides, autos & goods delivery in minutes. Drivers & vehicle owners – earn more with Zyppi." />
   <meta name="keywords" content="ride booking app india, cab booking online, outstation cab, local taxi, vehicle rental, bike taxi, auto booking, driver on demand, earn money driving, vehicle owner app, zyppi ride" />
@@ -47,8 +50,8 @@ import '../styles/globals.css';
   <header class="sticky top-0 z-50 border-b border-white/10 bg-[hsl(243_75%_22%)] shadow-lg">
     <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
       <a href="/" class="flex items-center gap-2.5">
-        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-white p-1.5">
+          <img src="/logo.png" alt="Zyppi logo" class="h-6 w-6 object-contain" data-branding-logo />
         </div>
         <span class="text-xl font-bold tracking-wide text-white">ZYPPI</span>
       </a>
@@ -277,8 +280,8 @@ import '../styles/globals.css';
   <footer class="bg-gray-900 py-10">
     <div class="mx-auto max-w-6xl px-4 sm:px-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
       <div class="flex items-center gap-2.5">
-        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-white p-1">
+          <img src="/logo.png" alt="Zyppi logo" class="h-5 w-5 object-contain" data-branding-logo />
         </div>
         <span class="text-sm font-bold text-white tracking-wide">ZYPPI</span>
       </div>
@@ -374,5 +377,6 @@ import '../styles/globals.css';
   ]
   </script>
 
+  <BrandingLogo />
 </body>
 </html>
