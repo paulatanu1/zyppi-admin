@@ -331,6 +331,17 @@ service cloud.firestore {
     }
 
     // ============================================
+    // ADMIN NOTIFICATIONS QUEUE
+    // Admin panel queues a doc here; the Cloud
+    // Function (Admin SDK, bypasses rules) sends
+    // the FCM push and updates the status.
+    // ============================================
+    match /adminNotifications/{notificationId} {
+      allow read, create, delete: if isAdmin();
+      allow update: if false; // status updates come from the Cloud Function only
+    }
+
+    // ============================================
     // WEBSITE CONTACT FORM
     // Public form on zyppi.in/contact — anyone may
     // submit; only admins may read and resolve.
