@@ -30,6 +30,7 @@ puppeteer.launch({
 
 Gotchas:
 - macOS has no `timeout` command.
+- Don't use puppeteer `screenshot({ clip })` on elements with CSS transforms (e.g. float animations) — coordinates land wrong; take full-viewport shots instead.
 - The dark pill at the bottom of dev-mode screenshots is the Astro dev toolbar, not page content.
 - React islands are `client:only` — `curl` gets an empty shell; you need JS execution to see anything.
 
