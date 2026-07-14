@@ -75,7 +75,7 @@ export function LoginForm() {
               <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Email</label>
               <input
                 type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                placeholder="admin@zyppiride.com"
+                placeholder="admin@zyppi.in"
                 className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-indigo-400 focus:bg-white focus:ring-3 focus:ring-indigo-100"
               />
             </div>
