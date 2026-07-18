@@ -102,6 +102,7 @@ export function UsersShell() {
       key: 'actions', header: '',
       render: u => {
         const isPending = updateVerification.isPending && updateVerification.variables?.uid === u.userId;
+        const pendingStatus = isPending ? updateVerification.variables?.status : null;
         const result = actionResult?.uid === u.userId ? actionResult.label : null;
         return (
         <div className="flex items-center gap-1">
@@ -111,13 +112,13 @@ export function UsersShell() {
                 onClick={e => { e.stopPropagation(); updateVerification.mutate({ uid: u.userId, status: 'approved' }); }}
                 disabled={isPending}
                 className="rounded p-1 text-green-600 hover:bg-green-50 disabled:opacity-50 transition-colors" title="Approve">
-                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                {pendingStatus === 'approved' ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
               </button>
               <button
                 onClick={e => { e.stopPropagation(); updateVerification.mutate({ uid: u.userId, status: 'rejected' }); }}
                 disabled={isPending}
                 className="rounded p-1 text-red-500 hover:bg-red-50 disabled:opacity-50 transition-colors" title="Reject">
-                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+                {pendingStatus === 'rejected' ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
               </button>
             </>
           )}

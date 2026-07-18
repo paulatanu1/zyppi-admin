@@ -91,6 +91,7 @@ export function VehiclesShell() {
       key: 'actions', header: '',
       render: v => {
         const isPending = updateDocStatus.isPending && updateDocStatus.variables?.id === v.vehicleId;
+        const pendingStatus = isPending ? updateDocStatus.variables?.status : null;
         const result = docResult?.id === v.vehicleId ? docResult.label : null;
         return (
         <div className="flex items-center gap-1">
@@ -100,13 +101,13 @@ export function VehiclesShell() {
                 onClick={e => { e.stopPropagation(); updateDocStatus.mutate({ id: v.vehicleId, status: 'approved' }); }}
                 disabled={isPending}
                 className="rounded p-1 text-green-600 hover:bg-green-50 disabled:opacity-50 transition-colors" title="Approve docs">
-                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                {pendingStatus === 'approved' ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
               </button>
               <button
                 onClick={e => { e.stopPropagation(); updateDocStatus.mutate({ id: v.vehicleId, status: 'rejected' }); }}
                 disabled={isPending}
                 className="rounded p-1 text-red-500 hover:bg-red-50 disabled:opacity-50 transition-colors" title="Reject docs">
-                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+                {pendingStatus === 'rejected' ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
               </button>
             </>
           )}

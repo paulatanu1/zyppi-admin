@@ -41,6 +41,9 @@ service cloud.firestore {
                      !('isAdmin' in request.resource.data) &&
                      request.resource.data.get('verificationStatus', 'pending') == 'pending';
 
+      // Admin panel: approve/reject verification, edit user records
+      allow update: if isAdmin();
+
       // User can update their own document but cannot escalate privileges.
       // verificationStatus: user may only advance to 'submitted' from pending/rejected;
       // all other verificationStatus changes are admin-only.
