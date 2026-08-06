@@ -101,6 +101,10 @@ export function UserDetail({ user, onClose }: Props) {
     },
   });
 
+  const isApprovePending = updateVerification.isPending && updateVerification.variables === 'approved';
+  const isRejectPending = updateVerification.isPending && updateVerification.variables === 'rejected';
+  const isPendingPending = updateVerification.isPending && updateVerification.variables === 'pending';
+
   const totalSpent = bookings
     .filter(b => b.status === 'completed')
     .reduce((sum, b) => sum + (b.fareDetails?.totalFare ?? 0), 0);
@@ -243,7 +247,7 @@ export function UserDetail({ user, onClose }: Props) {
                     disabled={updateVerification.isPending}
                     className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                   >
-                    {updateVerification.isPending
+                    {isApprovePending
                       ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       : <CheckCircle className="h-3.5 w-3.5" />}
                     Approve
@@ -255,7 +259,7 @@ export function UserDetail({ user, onClose }: Props) {
                     disabled={updateVerification.isPending}
                     className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                   >
-                    {updateVerification.isPending
+                    {isRejectPending
                       ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       : <XCircle className="h-3.5 w-3.5" />}
                     Reject
@@ -267,7 +271,7 @@ export function UserDetail({ user, onClose }: Props) {
                     disabled={updateVerification.isPending}
                     className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                   >
-                    {updateVerification.isPending
+                    {isPendingPending
                       ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       : null}
                     Reset to Pending

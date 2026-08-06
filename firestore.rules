@@ -25,7 +25,7 @@ service cloud.firestore {
 
     // Check if user is trying to go online
     function isGoingOnline() {
-      return request.resource.data.isOnline == true &&
+      return request.resource.data.get('isOnline', false) == true &&
              (!('isOnline' in resource.data) || resource.data.isOnline == false);
     }
 
@@ -38,17 +38,32 @@ service cloud.firestore {
 
       // User can create their own document but cannot self-assign privileged fields
       allow create: if request.auth != null && request.auth.uid == userId &&
-                     !('isAdmin' in request.resource.data) &&
+                     !request.resource.data.keys().hasAny([
+                       'isAdmin', 'walletBalance', 'rating', 'totalRides',
+                       'totalSpent', 'verificationApprovedAt', 'verificationNotes'
+                     ]) &&
                      request.resource.data.get('verificationStatus', 'pending') == 'pending';
 
       // Admin panel: approve/reject verification, edit user records
       allow update: if isAdmin();
 
-      // User can update their own document but cannot escalate privileges.
+      // User can update their own document but only fields on the whitelist.
+      // Fields deliberately excluded (admin-only): isAdmin, verificationApprovedAt,
+      // verificationNotes, rating, totalRides, totalSpent, walletBalance.
       // verificationStatus: user may only advance to 'submitted' from pending/rejected;
       // all other verificationStatus changes are admin-only.
       allow update: if request.auth != null && request.auth.uid == userId &&
-                     !('isAdmin' in request.resource.data.diff(resource.data).affectedKeys()) &&
+                     request.resource.data.diff(resource.data).affectedKeys()
+                       .hasOnly([
+                         'fullName', 'displayName', 'profileImageUrl',
+                         'mobile', 'phoneNumber', 'email', 'dob',
+                         'authMethod', 'role',
+                         'fcmToken', 'fcmTokenUpdatedAt',
+                         'lastLoginAt', 'lastOnlineAt', 'isOnline',
+                         'verificationStatus', 'verificationSubmittedAt',
+                         'drivingLicenseNumber', 'drivingLicenseValidUpto',
+                         'updatedAt'
+                       ]) &&
                      (!('verificationStatus' in request.resource.data.diff(resource.data).affectedKeys()) ||
                       (request.resource.data.verificationStatus == 'submitted' &&
                        resource.data.verificationStatus in ['pending', 'rejected']));
@@ -73,7 +88,11 @@ service cloud.firestore {
     // VEHICLES COLLECTION
     // ============================================
     match /vehicles/{vehicleId} {
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      // Owner registers the vehicle; documentStatus must start as 'pending'
+      // ('approved' is admin-only) so the isOnline gate cannot be pre-seeded.
+      allow create: if request.auth != null &&
+                      request.auth.uid == request.resource.data.userId &&
+                      request.resource.data.get('documentStatus', 'pending') == 'pending';
       allow read: if request.auth != null;
       allow update, delete: if isAdmin();
 
@@ -81,8 +100,13 @@ service cloud.firestore {
       // own documentStatus to already be 'approved' (set by admin).
       // Checking resource.data (existing doc) keeps this consistent with the
       // client-side eligibility check which also reads vehicle.documentStatus.
+      // Owner may not reassign the vehicle (userId) and may only move
+      // documentStatus to 'submitted' — 'approved'/'rejected' are admin-only.
       allow update: if request.auth != null &&
                       request.auth.uid == resource.data.userId &&
+                      request.resource.data.userId == resource.data.userId &&
+                      (!('documentStatus' in request.resource.data.diff(resource.data).affectedKeys()) ||
+                       request.resource.data.documentStatus == 'submitted') &&
                       (!isGoingOnline() || resource.data.documentStatus == 'approved');
 
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
@@ -153,27 +177,56 @@ service cloud.firestore {
       // Only authenticated users can create bookings for themselves
       allow create: if request.auth != null && isValidBookingCreate();
 
-      // User can only cancel (set status=cancelled) or add a rating
+      // User can only cancel (set status=cancelled) or add a rating.
+      // If status changes at all, the only value a rider may write is
+      // 'cancelled' — confirming/completing is driver/function territory.
       allow update: if request.auth != null && isBookingUser() &&
                      request.resource.data.diff(resource.data).affectedKeys()
                        .hasOnly(['status', 'cancellationReason', 'cancelledBy',
                                  'cancelledAt', 'cancellationFee', 'updatedAt',
                                  'userRating', 'userReview']) &&
+                     (!('status' in request.resource.data.diff(resource.data).affectedKeys()) ||
+                      request.resource.data.status == 'cancelled') &&
                      (resource.data.status in ['pending', 'confirmed'] ||
                       request.resource.data.diff(resource.data).affectedKeys()
                         .hasOnly(['userRating', 'userReview', 'updatedAt']));
 
-      // Driver can only update status and ride-lifecycle fields.
-      // fareDetails and paymentStatus are locked once the trip is completed —
-      // only admin can adjust fare or mark payment after that point.
+      // Driver lifecycle updates follow the booking state machine (W5).
+      // arrived → inProgress is reserved for the verifyRideOtp Cloud
+      // Function (V-04), so it is deliberately absent from the list.
+      function isDriverTransitionValid() {
+        let oldS = resource.data.status;
+        let newS = request.resource.data.status;
+        return (oldS == 'pending' && newS == 'confirmed') ||
+               (oldS == 'confirmed' && newS == 'driverArriving') ||
+               (oldS in ['confirmed', 'driverArriving'] && newS == 'arrived') ||
+               (oldS == 'inProgress' && newS == 'completed') ||
+               (oldS in ['pending', 'confirmed', 'driverArriving', 'arrived'] &&
+                newS == 'cancelled');
+      }
+
+      // Driver moves the booking along the state machine. fareDetails and
+      // the actual distance/duration may only change together with the
+      // inProgress → completed transition (end-of-trip recalculation) —
+      // never mid-ride, and never without a status change.
       allow update: if request.auth != null && isBookingDriver() &&
-                     resource.data.status != 'completed' &&
+                     'status' in request.resource.data.diff(resource.data).affectedKeys() &&
+                     isDriverTransitionValid() &&
                      request.resource.data.diff(resource.data).affectedKeys()
-                       .hasOnly(['status', 'confirmedAt', 'startedAt', 'completedAt',
+                       .hasOnly(['status', 'confirmedAt', 'completedAt',
                                  'cancelledAt', 'cancellationReason', 'cancelledBy',
                                  'fareDetails', 'estimatedDistance',
-                                 'estimatedDuration', 'driverRating', 'driverReview',
-                                 'updatedAt']);
+                                 'estimatedDuration', 'updatedAt']) &&
+                     (!request.resource.data.diff(resource.data).affectedKeys()
+                        .hasAny(['fareDetails', 'estimatedDistance', 'estimatedDuration']) ||
+                      request.resource.data.status == 'completed');
+
+      // Driver rates the rider after the trip completed (rating only —
+      // fare, participants, and status stay locked).
+      allow update: if request.auth != null && isBookingDriver() &&
+                     resource.data.status == 'completed' &&
+                     request.resource.data.diff(resource.data).affectedKeys()
+                       .hasOnly(['driverRating', 'driverReview', 'updatedAt']);
 
       // Driver records manual cash payment after trip completion.
       // Only receipt fields may change; fare, participants, and status are locked.
@@ -186,6 +239,16 @@ service cloud.firestore {
 
       // No direct deletes - use status updates instead
       allow delete: if false;
+
+      // Server-generated ride OTP + attempt counters (V-04 / W1).
+      // Only the rider may read it — the driver must never see the OTP,
+      // or they could self-verify pickup. Written exclusively by Cloud
+      // Functions (onBookingCreated / verifyRideOtp).
+      match /private/{docId} {
+        allow read: if request.auth != null &&
+                     get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId == request.auth.uid;
+        allow write: if false;
+      }
     }
 
     // ============================================
@@ -292,22 +355,10 @@ service cloud.firestore {
     // ============================================
     match /complaints/{complaintId} {
       allow read, update: if isAdmin();
-      function isValidComplaint() {
-        let data = request.resource.data;
-        return data.keys().hasAll(['userId', 'ticketId', 'subject', 'description',
-                                   'priority', 'status', 'createdAt']) &&
-               data.userId is string &&
-               data.ticketId is string &&
-               data.subject is string &&
-               data.description is string &&
-               data.priority in ['Low', 'Medium', 'High'] &&
-               data.status == 'Pending' &&
-               data.userId == request.auth.uid;
-      }
-
-      allow create: if request.auth != null && isValidComplaint();
+      // Created exclusively by the createSupportTicket Cloud Function so
+      // ticket IDs come from a transactional counter (W4).
+      allow create: if false;
       allow read: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow update: if false;
       allow delete: if false;
     }
 
@@ -316,21 +367,15 @@ service cloud.firestore {
     // ============================================
     match /feedbacks/{feedbackId} {
       allow read: if isAdmin();
-      function isValidFeedback() {
-        let data = request.resource.data;
-        return data.keys().hasAll(['userId', 'feedbackId', 'rating',
-                                   'message', 'createdAt']) &&
-               data.userId is string &&
-               data.feedbackId is string &&
-               data.rating is number &&
-               data.rating >= 1 && data.rating <= 5 &&
-               data.message is string &&
-               data.userId == request.auth.uid;
-      }
-
-      allow create: if request.auth != null && isValidFeedback();
+      // Created exclusively by the createSupportTicket Cloud Function (W4).
+      allow create: if false;
       allow read: if request.auth != null && request.auth.uid == resource.data.userId;
       allow update, delete: if false;
+    }
+
+    // Ticket-ID counter — server-only (createSupportTicket transaction).
+    match /counters/{counterId} {
+      allow read, write: if false;
     }
 
     // ============================================
@@ -388,6 +433,22 @@ service cloud.firestore {
       allow read: if isAdmin();
       // Admins may delete spam submissions
       allow delete: if isAdmin();
+    }
+
+    // ============================================
+    // E2E TEST MODE — isolated, prefixed collections
+    // ============================================
+    // TestMode (lib/core/constants/test_mode.dart) routes every Firestore
+    // call to e2e_test_* collections when the app is built with
+    // --dart-define=E2E_TEST_MODE=true, so integration_test/e2e/ never
+    // touches real user data. Scoped to the literal 'e2e_test_' prefix via
+    // regex match, so it cannot broaden access to the real collections
+    // (e.g. 'users') matched by the explicit rules above — and gated on
+    // auth so it isn't a fully open write target for anyone crafting a
+    // request directly against these paths.
+    match /{collection}/{document=**} {
+      allow read, write: if request.auth != null &&
+                            collection.matches('^e2e_test_.*$');
     }
   }
 }
