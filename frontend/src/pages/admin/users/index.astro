@@ -1,6 +1,7 @@
 ---
 import '../../../styles/globals.css';
 import UsersPage from '../../../entries/UsersPage';
+import Analytics from '../../../components/Analytics.astro';
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -10,6 +11,7 @@ import UsersPage from '../../../entries/UsersPage';
   <link rel="icon" type="image/png" href="/favicon-32.png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <title>Users — Zyppi Admin</title>
+  <Analytics />
 </head>
 <body class="bg-gray-50">
   <UsersPage client:only="react" />
