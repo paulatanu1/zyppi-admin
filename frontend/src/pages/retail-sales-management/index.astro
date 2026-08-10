@@ -1,5 +1,6 @@
 ---
 import Analytics from '../../components/Analytics.astro';
+const downloadUrl = 'https://storage.googleapis.com/retail-management-2d7a1.firebasestorage.app/installers/Retail-Due-Manager-Setup-0.1.0.exe';
 ---
 <!doctype html>
 <html lang="en">
@@ -384,10 +385,10 @@ import Analytics from '../../components/Analytics.astro';
           without an internet connection.
         </p>
         <div class="hero-cta">
-          <a class="stamp-btn solid" href="#contact">Bring it to your shop</a>
+          <a class="stamp-btn solid" href={downloadUrl} download>Download for Windows</a>
           <a class="stamp-btn" href="#features" style="transform:rotate(1deg);">See what it does</a>
         </div>
-        <p class="hero-note">No card required · Runs on Windows &amp; macOS · Your data stays on your machine</p>
+        <p class="hero-note">v0.1.0 · Windows installer (.exe) · ~94 MB · Your data stays on your machine</p>
       </div>
 
       <div class="ledger-frame" role="img" aria-label="Mockup of the Retail Due Manager sales invoice screen, showing a ledger table with item, invoice number, quantity, rate and amount columns, and a running total.">
@@ -606,6 +607,7 @@ import Analytics from '../../components/Analytics.astro';
       <h2>Bring your dues into one ledger.</h2>
       <p>Tell us about your shop and we'll set you up — Admin account, first Agent logins, and a walkthrough included.</p>
       <div class="contact-row">
+        <a class="contact-card" href={downloadUrl} download><span><span class="k">Download</span>Windows (.exe)</span></a>
         <a class="contact-card" href="mailto:admin@zyppi.in"><span><span class="k">Email</span>admin@zyppi.in</span></a>
         <a class="contact-card" href="tel:+918918882380"><span><span class="k">Call</span>+91 89188 82380</span></a>
       </div>
