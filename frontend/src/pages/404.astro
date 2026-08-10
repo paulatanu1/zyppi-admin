@@ -1,0 +1,62 @@
+---
+import '../styles/globals.css';
+import BrandingLogo from '../components/BrandingLogo.astro';
+import Analytics from '../components/Analytics.astro';
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <title>Page Not Found – Zyppi</title>
+  <meta name="robots" content="noindex, follow" />
+  <meta name="theme-color" content="#673AB7" />
+
+  <Analytics />
+</head>
+<body class="bg-white text-gray-900 antialiased">
+
+  <!-- NAV -->
+  <header class="sticky top-0 z-50 border-b border-white/10 bg-[hsl(243_75%_22%)] shadow-lg">
+    <div class="mx-auto flex max-w-4xl items-center justify-between px-4 py-4 sm:px-6">
+      <a href="/" class="flex items-center gap-2.5">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-white p-1.5">
+          <img src="/logo.png" alt="Zyppi logo" class="h-6 w-6 object-contain" data-branding-logo />
+        </div>
+        <span class="text-xl font-bold tracking-wide text-white">ZYPPI</span>
+      </a>
+      <a href="/" class="text-sm text-white/70 hover:text-white transition-colors">← Back to Home</a>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="mx-auto flex max-w-2xl flex-col items-center px-4 py-24 text-center sm:px-6">
+    <p class="text-sm font-semibold uppercase tracking-widest text-indigo-600 mb-3">404 Error</p>
+    <h1 class="text-5xl font-extrabold text-gray-900">Page not found</h1>
+    <p class="mt-4 max-w-md text-base text-gray-500">
+      The page you're looking for doesn't exist or may have moved. Let's get you back on track.
+    </p>
+    <a
+      href="/"
+      class="mt-8 inline-flex items-center justify-center rounded-lg bg-[hsl(243_75%_22%)] px-6 py-3 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-[hsl(243_75%_18%)]"
+    >
+      Back to Home
+    </a>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-gray-100 py-8">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 flex flex-col items-center gap-2 text-xs text-gray-400 sm:flex-row sm:justify-between">
+      <p>© {new Date().getFullYear()} Zyppi. All rights reserved.</p>
+      <div class="flex gap-4">
+        <a href="/privacy-policy" class="hover:text-gray-600 transition-colors">Privacy Policy</a>
+        <a href="/term-condition" class="hover:text-gray-600 transition-colors">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <BrandingLogo />
+</body>
+</html>
