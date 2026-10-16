@@ -32,6 +32,30 @@ export const routes: Routes = [
           title: 'View Products',
         },
       },
+      {
+        path: 'categories',
+        loadComponent: () =>
+          import('./categories/categories.component').then((m) => m.CategoriesComponent),
+        data: { title: 'Categories' },
+      },
+      {
+        path: 'stores',
+        loadComponent: () =>
+          import('./stores/stores.component').then((m) => m.StoresComponent),
+        data: { title: 'Stores & Areas' },
+      },
+      {
+        path: 'delivery-slots',
+        loadComponent: () =>
+          import('./delivery-slots/delivery-slots.component').then((m) => m.DeliverySlotsComponent),
+        data: { title: 'Delivery Slots' },
+      },
+      {
+        path: 'coupons',
+        loadComponent: () =>
+          import('./coupons/coupons.component').then((m) => m.CouponsComponent),
+        data: { title: 'Coupons' },
+      },
       // {
       //   path: 'cards',
       //   loadComponent: () => import('./cards/cards.component').then(m => m.CardsComponent),

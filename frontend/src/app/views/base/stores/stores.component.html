@@ -1,0 +1,155 @@
+<c-row>
+  <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-header class="d-flex justify-content-between align-items-center">
+        <strong>Service Areas</strong>
+        <button (click)="openAddArea()" cButton color="primary" size="sm">Add Service Area</button>
+      </c-card-header>
+      <c-card-body>
+        @if (loading()) {
+          <p class="text-body-secondary">Loading…</p>
+        } @else {
+          <table cTable hover>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Active</th>
+                <th>Center</th>
+                <th>Radius (m)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (area of serviceAreas(); track area.id) {
+                <tr>
+                  <td>{{ area.name }}</td>
+                  <td>{{ area.is_active ? 'Yes' : 'No' }}</td>
+                  <td>{{ area.center_lat }}, {{ area.center_lng }}</td>
+                  <td>{{ area.radius_meters }}</td>
+                  <td class="text-end">
+                    <button (click)="openEditArea(area)" cButton color="secondary" size="sm" variant="outline">Edit</button>
+                    <button (click)="removeArea(area)" cButton class="ms-2" color="danger" size="sm" variant="outline">Delete</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="5" class="text-body-secondary">No service areas yet.</td></tr>
+              }
+            </tbody>
+          </table>
+        }
+      </c-card-body>
+    </c-card>
+
+    <c-card class="mb-4">
+      <c-card-header class="d-flex justify-content-between align-items-center">
+        <strong>Stores</strong>
+        <button (click)="openAddStore()" cButton color="primary" size="sm" [disabled]="!serviceAreas().length">Add Store</button>
+      </c-card-header>
+      <c-card-body>
+        @if (!loading()) {
+          <table cTable hover>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Service area</th>
+                <th>Active</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (store of stores(); track store.id) {
+                <tr>
+                  <td>{{ store.name }}</td>
+                  <td>{{ areaName(store.service_area_id) }}</td>
+                  <td>{{ store.is_active ? 'Yes' : 'No' }}</td>
+                  <td class="text-end">
+                    <button (click)="openEditStore(store)" cButton color="secondary" size="sm" variant="outline">Edit</button>
+                    <button (click)="removeStore(store)" cButton class="ms-2" color="danger" size="sm" variant="outline">Delete</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="4" class="text-body-secondary">No stores yet.</td></tr>
+              }
+            </tbody>
+          </table>
+        }
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+<c-modal [visible]="areaModalVisible()" (visibleChange)="areaModalVisible.set($event)">
+  <c-modal-header>
+    <h5 cModalTitle>{{ editingAreaId ? 'Edit' : 'Add' }} Service Area</h5>
+    <button (click)="areaModalVisible.set(false)" cButtonClose></button>
+  </c-modal-header>
+  <form [formGroup]="areaForm" (ngSubmit)="saveArea()">
+    <c-modal-body>
+      @if (error()) {
+        <p class="text-danger">{{ error() }}</p>
+      }
+      <div class="mb-3">
+        <label cLabel for="areaName">Name</label>
+        <input cFormControl formControlName="name" id="areaName" />
+      </div>
+      <div class="mb-3 form-check">
+        <input cFormCheckInput formControlName="is_active" id="areaActive" type="checkbox" />
+        <label cFormCheckLabel for="areaActive">Active</label>
+      </div>
+      <div class="mb-3">
+        <label cLabel for="centerLat">Center latitude</label>
+        <input cFormControl formControlName="center_lat" id="centerLat" type="number" step="0.0001" />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="centerLng">Center longitude</label>
+        <input cFormControl formControlName="center_lng" id="centerLng" type="number" step="0.0001" />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="radiusMeters">Radius (meters)</label>
+        <input cFormControl formControlName="radius_meters" id="radiusMeters" type="number" />
+      </div>
+    </c-modal-body>
+    <c-modal-footer>
+      <button (click)="areaModalVisible.set(false)" cButton color="secondary" type="button">Cancel</button>
+      <button [disabled]="areaForm.invalid || saving()" cButton color="primary" type="submit">
+        {{ saving() ? 'Saving…' : 'Save' }}
+      </button>
+    </c-modal-footer>
+  </form>
+</c-modal>
+
+<c-modal [visible]="storeModalVisible()" (visibleChange)="storeModalVisible.set($event)">
+  <c-modal-header>
+    <h5 cModalTitle>{{ editingStoreId ? 'Edit' : 'Add' }} Store</h5>
+    <button (click)="storeModalVisible.set(false)" cButtonClose></button>
+  </c-modal-header>
+  <form [formGroup]="storeForm" (ngSubmit)="saveStore()">
+    <c-modal-body>
+      @if (error()) {
+        <p class="text-danger">{{ error() }}</p>
+      }
+      <div class="mb-3">
+        <label cLabel for="storeName">Name</label>
+        <input cFormControl formControlName="name" id="storeName" />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="storeArea">Service area</label>
+        <select cSelect formControlName="service_area_id" id="storeArea">
+          @for (area of serviceAreas(); track area.id) {
+            <option [value]="area.id">{{ area.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="mb-3 form-check">
+        <input cFormCheckInput formControlName="is_active" id="storeActive" type="checkbox" />
+        <label cFormCheckLabel for="storeActive">Active</label>
+      </div>
+    </c-modal-body>
+    <c-modal-footer>
+      <button (click)="storeModalVisible.set(false)" cButton color="secondary" type="button">Cancel</button>
+      <button [disabled]="storeForm.invalid || saving()" cButton color="primary" type="submit">
+        {{ saving() ? 'Saving…' : 'Save' }}
+      </button>
+    </c-modal-footer>
+  </form>
+</c-modal>

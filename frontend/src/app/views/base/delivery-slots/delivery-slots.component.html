@@ -1,0 +1,79 @@
+<c-row>
+  <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-header class="d-flex justify-content-between align-items-center">
+        <strong>Delivery Slots</strong>
+        <button (click)="openAdd()" cButton color="primary" size="sm">Add Slot</button>
+      </c-card-header>
+      <c-card-body>
+        @if (loading()) {
+          <p class="text-body-secondary">Loading…</p>
+        } @else {
+          <table cTable hover>
+            <thead>
+              <tr>
+                <th>Label</th>
+                <th>ETA (min)</th>
+                <th>Express</th>
+                <th>Active</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (slot of slots(); track slot.id) {
+                <tr>
+                  <td>{{ slot.label }}</td>
+                  <td>{{ slot.eta_minutes }}</td>
+                  <td>{{ slot.is_express ? 'Yes' : 'No' }}</td>
+                  <td>{{ slot.is_active ? 'Yes' : 'No' }}</td>
+                  <td class="text-end">
+                    <button (click)="openEdit(slot)" cButton color="secondary" size="sm" variant="outline">Edit</button>
+                    <button (click)="remove(slot)" cButton class="ms-2" color="danger" size="sm" variant="outline">Delete</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="5" class="text-body-secondary">No delivery slots yet.</td></tr>
+              }
+            </tbody>
+          </table>
+        }
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+<c-modal [visible]="modalVisible()" (visibleChange)="modalVisible.set($event)">
+  <c-modal-header>
+    <h5 cModalTitle>{{ editingId ? 'Edit' : 'Add' }} Delivery Slot</h5>
+    <button (click)="modalVisible.set(false)" cButtonClose></button>
+  </c-modal-header>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <c-modal-body>
+      @if (error()) {
+        <p class="text-danger">{{ error() }}</p>
+      }
+      <div class="mb-3">
+        <label cLabel for="label">Label</label>
+        <input cFormControl formControlName="label" id="label" placeholder="e.g. Today, 4:00 PM - 6:00 PM" />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="etaMinutes">ETA (minutes)</label>
+        <input cFormControl formControlName="eta_minutes" id="etaMinutes" type="number" />
+      </div>
+      <div class="mb-3 form-check">
+        <input cFormCheckInput formControlName="is_express" id="isExpress" type="checkbox" />
+        <label cFormCheckLabel for="isExpress">Express</label>
+      </div>
+      <div class="mb-3 form-check">
+        <input cFormCheckInput formControlName="is_active" id="isActive" type="checkbox" />
+        <label cFormCheckLabel for="isActive">Active</label>
+      </div>
+    </c-modal-body>
+    <c-modal-footer>
+      <button (click)="modalVisible.set(false)" cButton color="secondary" type="button">Cancel</button>
+      <button [disabled]="form.invalid || saving()" cButton color="primary" type="submit">
+        {{ saving() ? 'Saving…' : 'Save' }}
+      </button>
+    </c-modal-footer>
+  </form>
+</c-modal>
