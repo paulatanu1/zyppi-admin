@@ -78,6 +78,18 @@ export const routes: Routes = [
           import('./orders/order-detail/order-detail.component').then((m) => m.OrderDetailComponent),
         data: { title: 'Order Detail' },
       },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./users/user-list/user-list.component').then((m) => m.UserListComponent),
+        data: { title: 'Users' },
+      },
+      {
+        path: 'users/:id',
+        loadComponent: () =>
+          import('./users/user-detail/user-detail.component').then((m) => m.UserDetailComponent),
+        data: { title: 'User Detail' },
+      },
       // {
       //   path: 'cards',
       //   loadComponent: () => import('./cards/cards.component').then(m => m.CardsComponent),
