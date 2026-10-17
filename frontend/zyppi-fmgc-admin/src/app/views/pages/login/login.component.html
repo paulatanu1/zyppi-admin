@@ -1,0 +1,46 @@
+<div class="bg-light dark:bg-transparent min-vh-100 d-flex flex-row align-items-center">
+  <c-container breakpoint="md">
+    <c-row class="justify-content-center">
+      <c-col lg="6" xl="5">
+        <c-card-group>
+          <c-card class="p-4">
+            <c-card-body>
+              <form cForm [formGroup]="form" (ngSubmit)="submit()">
+                <h1>Zyppi Admin</h1>
+                <p class="text-body-secondary">Sign in to your account</p>
+                @if (error()) {
+                  <c-alert color="danger">{{ error() }}</c-alert>
+                }
+                <c-input-group class="mb-3">
+                  <span cInputGroupText>
+                    <svg cIcon name="cilUser"></svg>
+                  </span>
+                  <input autoComplete="username" cFormControl formControlName="email" placeholder="Email" type="email" />
+                </c-input-group>
+                <c-input-group class="mb-4">
+                  <span cInputGroupText>
+                    <svg cIcon name="cilLockLocked"></svg>
+                  </span>
+                  <input
+                    autoComplete="current-password"
+                    cFormControl
+                    formControlName="password"
+                    placeholder="Password"
+                    type="password"
+                  />
+                </c-input-group>
+                <c-row>
+                  <c-col xs="12">
+                    <button cButton class="px-4" color="primary" type="submit" [disabled]="form.invalid || submitting()">
+                      {{ submitting() ? 'Signing in…' : 'Login' }}
+                    </button>
+                  </c-col>
+                </c-row>
+              </form>
+            </c-card-body>
+          </c-card>
+        </c-card-group>
+      </c-col>
+    </c-row>
+  </c-container>
+</div>

@@ -1,0 +1,50 @@
+@if (error()) {
+  <p class="text-danger">{{ error() }}</p>
+}
+
+@if (loading()) {
+  <p class="text-body-secondary">Loading…</p>
+} @else {
+  <c-row class="g-4 mb-4">
+    <c-col sm="6" xl="3">
+      <c-widget-stat-a color="primary" title="Orders today" [value]="(summary()?.ordersToday ?? 0).toString()" />
+    </c-col>
+    <c-col sm="6" xl="3">
+      <c-widget-stat-a color="info" title="Revenue today" [value]="revenueDisplay()" />
+    </c-col>
+    <c-col sm="6" xl="3">
+      <c-widget-stat-a color="warning" title="Low stock variants" [value]="(summary()?.lowStockCount ?? 0).toString()" />
+    </c-col>
+    <c-col sm="6" xl="3">
+      <c-widget-stat-a color="danger" title="Out for delivery" [value]="statusCount('out_for_delivery').toString()" />
+    </c-col>
+  </c-row>
+
+  <c-card class="mb-4">
+    <c-card-header><strong>Orders today by status</strong></c-card-header>
+    <c-card-body>
+      <c-row class="text-center">
+        <c-col>
+          <div class="fs-4">{{ statusCount('placed') }}</div>
+          <div class="text-body-secondary">Placed</div>
+        </c-col>
+        <c-col>
+          <div class="fs-4">{{ statusCount('packed') }}</div>
+          <div class="text-body-secondary">Packed</div>
+        </c-col>
+        <c-col>
+          <div class="fs-4">{{ statusCount('out_for_delivery') }}</div>
+          <div class="text-body-secondary">Out for delivery</div>
+        </c-col>
+        <c-col>
+          <div class="fs-4">{{ statusCount('delivered') }}</div>
+          <div class="text-body-secondary">Delivered</div>
+        </c-col>
+        <c-col>
+          <div class="fs-4">{{ statusCount('cancelled') }}</div>
+          <div class="text-body-secondary">Cancelled</div>
+        </c-col>
+      </c-row>
+    </c-card-body>
+  </c-card>
+}

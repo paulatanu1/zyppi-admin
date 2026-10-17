@@ -18,6 +18,12 @@
   to = "/admin/:splat"
   status = 200
 
+# Zyppi grocery admin panel (Angular SPA, hash routing) — deep-link safety net
+[[redirects]]
+  from = "/zyppi-fmgc/*"
+  to = "/zyppi-fmgc/index.html"
+  status = 200
+
 [[headers]]
   for = "/*"
   [headers.values]
