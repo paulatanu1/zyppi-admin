@@ -1,5 +1,103 @@
-<c-row ngPreserveWhitespaces>
+<c-row>
   <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-header>
+        <strong>{{ productId ? 'Edit' : 'Add' }} Product</strong>
+      </c-card-header>
+      <c-card-body>
+        @if (loading()) {
+          <p class="text-body-secondary">Loading…</p>
+        } @else {
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            @if (error()) {
+              <c-alert color="danger">{{ error() }}</c-alert>
+            }
 
+            <div class="mb-3">
+              <label cLabel for="productName">Name</label>
+              <input cFormControl formControlName="name" id="productName" />
+            </div>
+
+            <div class="mb-3">
+              <label cLabel for="productCategory">Category</label>
+              <select cSelect formControlName="category_id" id="productCategory">
+                <option value="" disabled>Select a category</option>
+                @for (category of categories(); track category.id) {
+                  <option [value]="category.id">{{ category.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="mb-3 form-check">
+              <input cFormCheckInput formControlName="is_active" id="productActive" type="checkbox" />
+              <label cFormCheckLabel for="productActive">Active</label>
+            </div>
+
+            <div class="mb-3">
+              <label cLabel for="productImage">Image</label>
+              <input (change)="onImageSelected($event)" accept="image/*" class="form-control" id="productImage" type="file" />
+              @if (imagePreview()) {
+                <img [src]="imagePreview()" alt="Product preview" class="mt-2" style="max-height: 120px" />
+              }
+            </div>
+
+            <hr />
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong>Variants</strong>
+              <button (click)="addVariant()" cButton color="primary" size="sm" type="button">Add Variant</button>
+            </div>
+            <table cTable hover>
+              <thead>
+                <tr>
+                  <th>Label</th>
+                  <th>Price (₹)</th>
+                  <th>MRP (₹)</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (variant of variants.controls; track $index) {
+                  <tr [formGroup]="variant">
+                    <td><input cFormControl formControlName="label" /></td>
+                    <td><input cFormControl formControlName="price_rupees" type="number" step="0.01" /></td>
+                    <td><input cFormControl formControlName="mrp_rupees" type="number" step="0.01" /></td>
+                    <td class="text-end">
+                      <button (click)="removeVariant($index)" cButton color="danger" size="sm" type="button" variant="outline" [disabled]="variants.length <= 1">Remove</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+
+            <hr />
+
+            <strong>Inventory</strong>
+            <table cTable hover>
+              <thead>
+                <tr>
+                  <th>Store</th>
+                  <th>Quantity</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of inventoryRows.controls; track $index) {
+                  <tr [formGroup]="row">
+                    <td>{{ row.value.store_name }}</td>
+                    <td><input cFormControl formControlName="quantity" type="number" /></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+
+            <div class="mt-4">
+              <button [disabled]="form.invalid || saving()" cButton color="primary" type="submit">
+                {{ saving() ? 'Saving…' : 'Save' }}
+              </button>
+            </div>
+          </form>
+        }
+      </c-card-body>
+    </c-card>
   </c-col>
 </c-row>
