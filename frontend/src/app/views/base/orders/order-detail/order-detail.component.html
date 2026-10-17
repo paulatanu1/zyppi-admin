@@ -1,0 +1,109 @@
+@if (error()) {
+  <c-alert color="danger">{{ error() }}</c-alert>
+}
+
+@if (loading()) {
+  <p class="text-body-secondary">Loading…</p>
+} @else if (order()) {
+  @let o = order()!;
+  <c-row>
+    <c-col lg="8">
+      <c-card class="mb-4">
+        <c-card-header class="d-flex justify-content-between align-items-center">
+          <strong>Order {{ o.id.slice(0, 8) }}</strong>
+          <c-badge color="info">{{ o.status }}</c-badge>
+        </c-card-header>
+        <c-card-body>
+          <p class="mb-1"><strong>Placed:</strong> {{ o.placed_at | date: 'medium' }}</p>
+          <p class="mb-1"><strong>Payment method:</strong> {{ o.payment_method }}</p>
+          <p class="mb-3"><strong>Total:</strong> ₹{{ o.total_paise / 100 }}</p>
+
+          <strong>Items</strong>
+          <table cTable hover class="mt-2">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Unit</th>
+                <th>Qty</th>
+                <th>Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of o.order_items; track item.id) {
+                <tr>
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.unit }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>₹{{ item.price_paise / 100 }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          <div class="mt-3 text-end">
+            <p class="mb-1">Items: ₹{{ o.item_total_paise / 100 }}</p>
+            <p class="mb-1">Delivery fee: ₹{{ o.delivery_fee_paise / 100 }}</p>
+            <p class="mb-1">Handling fee: ₹{{ o.handling_fee_paise / 100 }}</p>
+            <p class="mb-1">Tip: ₹{{ o.tip_paise / 100 }}</p>
+            <p class="mb-1">Discount: -₹{{ o.discount_paise / 100 }}</p>
+            <p class="mb-1"><strong>Total: ₹{{ o.total_paise / 100 }}</strong></p>
+          </div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+
+    <c-col lg="4">
+      <c-card class="mb-4">
+        <c-card-header><strong>Delivery address</strong></c-card-header>
+        <c-card-body>
+          <p class="mb-1">{{ o.addresses.label }}</p>
+          <p class="mb-1">{{ o.addresses.line1 }}</p>
+          <p class="mb-1">{{ o.addresses.area }}</p>
+          <p class="mb-1">{{ o.addresses.city }}, {{ o.addresses.state }} {{ o.addresses.postal_code }}</p>
+          @if (o.addresses.landmark) {
+            <p class="mb-1">Landmark: {{ o.addresses.landmark }}</p>
+          }
+        </c-card-body>
+      </c-card>
+
+      <c-card class="mb-4">
+        <c-card-header><strong>Payment</strong></c-card-header>
+        <c-card-body>
+          @for (payment of o.payments; track payment.provider_reference) {
+            <p class="mb-1">{{ payment.method }} — {{ payment.status }}</p>
+            <p class="mb-1">₹{{ payment.amount_paise / 100 }}</p>
+            @if (payment.provider_reference) {
+              <p class="text-body-secondary small">Ref: {{ payment.provider_reference }}</p>
+            }
+          } @empty {
+            <p class="text-body-secondary">No payment recorded.</p>
+          }
+        </c-card-body>
+      </c-card>
+
+      <c-card>
+        <c-card-header><strong>Update status</strong></c-card-header>
+        <c-card-body>
+          @if (nextStatuses().length) {
+            <select (change)="onStatusChange($event)" cSelect class="mb-3">
+              <option value="">Select next status</option>
+              @for (status of nextStatuses(); track status) {
+                <option [value]="status">{{ status }}</option>
+              }
+            </select>
+            <button
+              (click)="updateStatus()"
+              [disabled]="!selectedStatus() || updating()"
+              cButton
+              color="primary"
+            >
+              {{ updating() ? 'Updating…' : 'Update status' }}
+            </button>
+          } @else {
+            <p class="text-body-secondary">No further status changes possible.</p>
+          }
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+}

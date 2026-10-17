@@ -66,6 +66,18 @@ export const routes: Routes = [
           import('./coupons/coupons.component').then((m) => m.CouponsComponent),
         data: { title: 'Coupons' },
       },
+      {
+        path: 'orders',
+        loadComponent: () =>
+          import('./orders/order-list/order-list.component').then((m) => m.OrderListComponent),
+        data: { title: 'Orders' },
+      },
+      {
+        path: 'orders/:id',
+        loadComponent: () =>
+          import('./orders/order-detail/order-detail.component').then((m) => m.OrderDetailComponent),
+        data: { title: 'Order Detail' },
+      },
       // {
       //   path: 'cards',
       //   loadComponent: () => import('./cards/cards.component').then(m => m.CardsComponent),
