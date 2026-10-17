@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && npm --prefix zyppi-fmgc-admin ci && npm --prefix zyppi-fmgc-admin run build && mkdir -p dist/zyppi-fmgc && cp -r zyppi-fmgc-admin/dist/zyppi-admin/browser/. dist/zyppi-fmgc/",
     "preview": "astro preview",
     "astro": "astro"
   },

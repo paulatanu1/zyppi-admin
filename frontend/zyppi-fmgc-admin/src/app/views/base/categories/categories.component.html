@@ -1,0 +1,79 @@
+<c-row>
+  <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-header class="d-flex justify-content-between align-items-center">
+        <strong>Categories</strong>
+        <button (click)="openAdd()" cButton color="primary" size="sm">Add Category</button>
+      </c-card-header>
+      <c-card-body>
+        @if (loading()) {
+          <p class="text-body-secondary">Loading…</p>
+        } @else {
+          <table cTable hover>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Colors</th>
+                <th>Sort order</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (category of categories(); track category.id) {
+                <tr>
+                  <td>{{ category.name }}</td>
+                  <td>
+                    <span [style.background]="category.color_hex" [style.border]="'1px solid ' + category.border_color_hex" style="display:inline-block;width:20px;height:20px;border-radius:4px;"></span>
+                  </td>
+                  <td>{{ category.sort_order }}</td>
+                  <td class="text-end">
+                    <button (click)="openEdit(category)" cButton color="secondary" size="sm" variant="outline">Edit</button>
+                    <button (click)="remove(category)" cButton class="ms-2" color="danger" size="sm" variant="outline">Delete</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="4" class="text-body-secondary">No categories yet.</td></tr>
+              }
+            </tbody>
+          </table>
+        }
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+<c-modal [visible]="modalVisible()" (visibleChange)="modalVisible.set($event)">
+  <c-modal-header>
+    <h5 cModalTitle>{{ editingId ? 'Edit' : 'Add' }} Category</h5>
+    <button (click)="modalVisible.set(false)" cButtonClose></button>
+  </c-modal-header>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <c-modal-body>
+      @if (error()) {
+        <p class="text-danger">{{ error() }}</p>
+      }
+      <div class="mb-3">
+        <label cLabel for="name">Name</label>
+        <input cFormControl formControlName="name" id="name" />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="colorHex">Background color</label>
+        <input cFormControl formControlName="color_hex" id="colorHex" type="color" />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="borderColorHex">Icon/border color</label>
+        <input cFormControl formControlName="border_color_hex" id="borderColorHex" type="color" />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="sortOrder">Sort order</label>
+        <input cFormControl formControlName="sort_order" id="sortOrder" type="number" />
+      </div>
+    </c-modal-body>
+    <c-modal-footer>
+      <button (click)="modalVisible.set(false)" cButton color="secondary" type="button">Cancel</button>
+      <button [disabled]="form.invalid || saving()" cButton color="primary" type="submit">
+        {{ saving() ? 'Saving…' : 'Save' }}
+      </button>
+    </c-modal-footer>
+  </form>
+</c-modal>

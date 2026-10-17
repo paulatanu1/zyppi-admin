@@ -1,0 +1,89 @@
+<c-row>
+  <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-header class="d-flex justify-content-between align-items-center">
+        <strong>Coupons</strong>
+        <button (click)="openAdd()" cButton color="primary" size="sm">Add Coupon</button>
+      </c-card-header>
+      <c-card-body>
+        @if (loading()) {
+          <p class="text-body-secondary">Loading…</p>
+        } @else {
+          <table cTable hover>
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Discount</th>
+                <th>Min order</th>
+                <th>Active</th>
+                <th>Expires</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (coupon of coupons(); track coupon.id) {
+                <tr>
+                  <td>{{ coupon.code }}</td>
+                  <td>₹{{ coupon.discount_paise / 100 }}</td>
+                  <td>₹{{ coupon.min_order_paise / 100 }}</td>
+                  <td>{{ coupon.is_active ? 'Yes' : 'No' }}</td>
+                  <td>{{ coupon.expires_at ? (coupon.expires_at | slice:0:10) : '—' }}</td>
+                  <td class="text-end">
+                    <button (click)="openEdit(coupon)" cButton color="secondary" size="sm" variant="outline">Edit</button>
+                    <button (click)="remove(coupon)" cButton class="ms-2" color="danger" size="sm" variant="outline">Delete</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="6" class="text-body-secondary">No coupons yet.</td></tr>
+              }
+            </tbody>
+          </table>
+        }
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+<c-modal [visible]="modalVisible()" (visibleChange)="modalVisible.set($event)">
+  <c-modal-header>
+    <h5 cModalTitle>{{ editingId ? 'Edit' : 'Add' }} Coupon</h5>
+    <button (click)="modalVisible.set(false)" cButtonClose></button>
+  </c-modal-header>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <c-modal-body>
+      @if (error()) {
+        <p class="text-danger">{{ error() }}</p>
+      }
+      <div class="mb-3">
+        <label cLabel for="code">Code</label>
+        <input cFormControl formControlName="code" id="code" style="text-transform:uppercase" />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="description">Description</label>
+        <input cFormControl formControlName="description" id="description" />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="discountRupees">Discount (₹)</label>
+        <input cFormControl formControlName="discount_rupees" id="discountRupees" type="number" />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="minOrderRupees">Minimum order (₹)</label>
+        <input cFormControl formControlName="min_order_rupees" id="minOrderRupees" type="number" />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="expiresAt">Expires on</label>
+        <input cFormControl formControlName="expires_at" id="expiresAt" type="date" />
+      </div>
+      <div class="mb-3 form-check">
+        <input cFormCheckInput formControlName="is_active" id="couponActive" type="checkbox" />
+        <label cFormCheckLabel for="couponActive">Active</label>
+      </div>
+    </c-modal-body>
+    <c-modal-footer>
+      <button (click)="modalVisible.set(false)" cButton color="secondary" type="button">Cancel</button>
+      <button [disabled]="form.invalid || saving()" cButton color="primary" type="submit">
+        {{ saving() ? 'Saving…' : 'Save' }}
+      </button>
+    </c-modal-footer>
+  </form>
+</c-modal>
