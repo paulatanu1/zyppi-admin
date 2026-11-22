@@ -1,0 +1,99 @@
+---
+import Analytics from '../components/Analytics.astro';
+import '../styles/site.css';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  active: 'home' | 'sell' | 'deliver' | 'contact' | 'legal';
+  scenes?: boolean;
+}
+const { title, description, path, active, scenes = false } = Astro.props;
+const url = `https://zyppi.in${path}`;
+const nav = [
+  { href: '/', key: 'home', en: 'Shop', bn: 'কেনাকাটা' },
+  { href: '/sell', key: 'sell', en: 'Sell on Zyppi', bn: 'Zyppi-তে বিক্রি' },
+  { href: '/deliver', key: 'deliver', en: 'Deliver with Zyppi', bn: 'ডেলিভারি করুন' },
+  { href: '/contact', key: 'contact', en: 'Contact', bn: 'যোগাযোগ' },
+];
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={url} />
+  <link rel="icon" type="image/png" href="/zyppi-mark.png" />
+  <link rel="apple-touch-icon" href="/zyppi-share.png" />
+  <meta name="theme-color" content="#FBFBFD" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0D0E11" media="(prefers-color-scheme: dark)" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Zyppi" />
+  <meta property="og:url" content={url} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content="https://zyppi.in/zyppi-share.png" />
+  <meta property="og:locale" content="en_IN" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@500;600;700;800&family=Noto+Sans+Bengali:wght@500;600;700;800&display=swap" />
+  <script is:inline>
+    // Theme and language before first paint, so nothing flashes.
+    try {
+      var t = localStorage.getItem('zyppi-theme');
+      if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+      if (localStorage.getItem('zyppi-lang') === 'bn') document.documentElement.lang = 'bn';
+    } catch (e) {}
+  </script>
+  <Analytics />
+</head>
+<body>
+  {scenes && active === 'home' && <canvas id="stage" aria-hidden="true"></canvas>}
+
+  <header class="top gutter">
+    <div class="wrap">
+      <a class="logo" href="/" aria-label="Zyppi home"><b></b>zyppi</a>
+      <nav aria-label="Main">
+        {nav.map((n) => (
+          <a href={n.href} class={active === n.key ? 'on' : undefined} aria-current={active === n.key ? 'page' : undefined} data-en={n.en} data-bn={n.bn}>{n.en}</a>
+        ))}
+      </nav>
+      <button class="theme" id="theme" type="button" aria-label="Switch to dark mode"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path id="themeIcon" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg></button>
+      <button class="lang" id="lang" type="button" aria-label="Switch language">বাংলা</button>
+      <button class="pillbtn" id="getApp" type="button" data-en="Get the app" data-bn="অ্যাপ নিন">Get the app</button>
+    </div>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer class="gutter">
+    <div class="wrap">
+      <div>
+        <a class="logo" href="/"><b></b>zyppi</a>
+        <p data-en="Ice cream, chocolate, groceries and everyday essentials, delivered in Chelyama." data-bn="চেলিয়ামায় আইসক্রিম, চকোলেট, বাজার ও রোজকার জিনিস, ঘরে পৌঁছে দেওয়া।">Ice cream, chocolate, groceries and everyday essentials, delivered in Chelyama.</p>
+      </div>
+      <nav aria-label="Footer">
+        <a href="/sell" data-en="Sell on Zyppi" data-bn="Zyppi-তে বিক্রি">Sell on Zyppi</a>
+        <a href="/deliver" data-en="Deliver with Zyppi" data-bn="ডেলিভারি করুন">Deliver with Zyppi</a>
+        <a href="https://admin.zyppi.in/rider" target="_blank" rel="noopener" data-en="Register as a rider" data-bn="রাইডার রেজিস্ট্রেশন">Register as a rider</a>
+        <a href="/contact" data-en="Contact" data-bn="যোগাযোগ">Contact</a>
+        <a href="/privacy-policy" data-en="Privacy policy" data-bn="প্রাইভেসি পলিসি">Privacy policy</a>
+        <a href="/term-condition" data-en="Terms" data-bn="শর্তাবলি">Terms</a>
+        <a href="/delete-account" data-en="Delete account" data-bn="অ্যাকাউন্ট মুছুন">Delete account</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    import '../scripts/site';
+  </script>
+</body>
+</html>

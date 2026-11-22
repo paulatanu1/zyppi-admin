@@ -1,64 +1,46 @@
 ---
-import '../styles/globals.css';
-import BrandingLogo from '../components/BrandingLogo.astro';
-import ContactPage from '../entries/ContactPage';
-import Analytics from '../components/Analytics.astro';
+import Site from '../layouts/Site.astro';
 ---
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" type="image/png" href="/favicon-32.png" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <title>Contact Us – Zyppi</title>
-  <meta name="description" content="Get in touch with the Zyppi team — questions about rides, payments, partnerships or anything else. We usually reply within 24 hours." />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://zyppi.in/contact" />
-  <meta name="theme-color" content="#673AB7" />
-
-  <Analytics />
-</head>
-<body class="bg-white text-gray-900 antialiased">
-
-  <!-- NAV -->
-  <header class="sticky top-0 z-50 border-b border-white/10 bg-[hsl(243_75%_22%)] shadow-lg">
-    <div class="mx-auto flex max-w-4xl items-center justify-between px-4 py-4 sm:px-6">
-      <a href="/" class="flex items-center gap-2.5">
-        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-white p-1.5">
-          <img src="/logo.png" alt="Zyppi logo" class="h-6 w-6 object-contain" data-branding-logo />
+<Site title="Contact Zyppi" description="Questions about an order, selling on Zyppi or riding with us? Write to the Zyppi team in Chelyama." path="/contact" active="contact" scenes={true}>
+<div class="page" data-page="contact">
+  <section class="hero gutter">
+    <div class="wrap grid">
+      <div class="copy">
+        <span class="kicker"><i></i><span data-en="We're here to help" data-bn="আমরা সাহায্যের জন্য আছি">We're here to help</span></span>
+        <h1>
+          <span class="line"><span data-en="Talk to us." data-bn="আমাদের সঙ্গে">Talk to us.</span></span>
+          <span class="line"><span class="pink" data-en="We're listening." data-bn="কথা বলুন।">We're listening.</span></span>
+        </h1>
+        <p class="lead" data-en="Questions about an order, selling on Zyppi or riding with us? Send a message and the team in Chelyama will get back to you." data-bn="অর্ডার, Zyppi-তে বিক্রি বা রাইড নিয়ে প্রশ্ন? বার্তা পাঠান, চেলিয়ামার টিম আপনার সঙ্গে যোগাযোগ করবে।">Questions about an order, selling on Zyppi or riding with us? Send a message and the team in Chelyama will get back to you.</p>
+      </div>
+      <div class="visual" aria-hidden="true"><canvas data-scene="contact"></canvas></div>
+    </div>
+  </section>
+  <section class="sec tight gutter get">
+    <div class="wrap grid">
+      <div class="contact">
+        <form class="form" id="contactForm" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+          <input type="hidden" name="form-name" value="contact">
+          <p hidden><label>Leave this empty <input name="bot-field"></label></p>
+          <div class="row2">
+            <label class="field" for="cf-name"><span data-en="Your name" data-bn="আপনার নাম">Your name</span><input id="cf-name" name="name" type="text" autocomplete="name" required></label>
+            <label class="field" for="cf-phone"><span data-en="Phone number" data-bn="ফোন নম্বর">Phone number</span><input id="cf-phone" name="phone" type="tel" autocomplete="tel"></label>
+          </div>
+          <label class="field" for="cf-topic"><span data-en="I am" data-bn="আমি">I am</span>
+            <select id="cf-topic" name="topic"><option data-en="A customer" data-bn="ক্রেতা">A customer</option><option data-en="A shop owner" data-bn="দোকানদার">A shop owner</option><option data-en="A rider" data-bn="রাইডার">A rider</option><option data-en="Something else" data-bn="অন্য কিছু">Something else</option></select></label>
+          <label class="field" for="cf-msg"><span data-en="Message" data-bn="বার্তা">Message</span><textarea id="cf-msg" name="message" required></textarea></label>
+          <div class="thanks" id="cfThanks" role="status" hidden data-en="Thanks. We'll get back to you soon." data-bn="ধন্যবাদ। শীঘ্রই যোগাযোগ করব।">Thanks. We'll get back to you soon.</div>
+          <div class="thanks err" id="cfError" role="alert" hidden></div>
+          <button class="submit" type="submit" data-en="Send message" data-bn="বার্তা পাঠান">Send message</button>
+        </form>
+        <div class="side">
+          <div class="info"><small data-en="Email" data-bn="ইমেল">Email</small><div class="row"><b class="sel" id="mail">admin@zyppi.in</b><button class="copy-btn" type="button" id="copyMail" data-en="Copy" data-bn="কপি">Copy</button></div></div>
+          <div class="info"><small data-en="In the app" data-bn="অ্যাপে">In the app</small><b data-en="Account → Help" data-bn="অ্যাকাউন্ট → সাহায্য">Account → Help</b></div>
+          <div class="info"><small data-en="Where we deliver" data-bn="আমরা যেখানে ডেলিভারি করি">Where we deliver</small><b data-en="Chelyama" data-bn="চেলিয়ামা">Chelyama</b></div>
+          <div class="info"><small data-en="Want to ride with us?" data-bn="রাইডার হতে চান?">Want to ride with us?</small><a href="https://admin.zyppi.in/rider" target="_blank" rel="noopener" data-en="Register as a rider →" data-bn="রাইডার হিসেবে রেজিস্টার করুন →">Register as a rider →</a></div>
         </div>
-        <span class="text-xl font-bold tracking-wide text-white">ZYPPI</span>
-      </a>
-      <a href="/" class="text-sm text-white/70 hover:text-white transition-colors">← Back to Home</a>
-    </div>
-  </header>
-
-  <!-- CONTENT -->
-  <main class="mx-auto max-w-2xl px-4 py-12 sm:px-6 sm:py-16">
-    <div class="mb-10">
-      <p class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">Support</p>
-      <h1 class="text-4xl font-extrabold text-gray-900">Contact Us</h1>
-      <p class="mt-3 text-sm text-gray-500">
-        Have a question about a ride, payment or partnership? Send us a message and we'll get back to you,
-        or email us directly at <a href="mailto:admin@zyppi.in" class="text-indigo-600 hover:underline">admin@zyppi.in</a>.
-      </p>
-    </div>
-
-    <ContactPage client:only="react" />
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="border-t border-gray-100 py-8">
-    <div class="mx-auto max-w-4xl px-4 sm:px-6 flex flex-col items-center gap-2 text-xs text-gray-400 sm:flex-row sm:justify-between">
-      <p>© {new Date().getFullYear()} Zyppi. All rights reserved.</p>
-      <div class="flex gap-4">
-        <a href="/privacy-policy" class="hover:text-gray-600 transition-colors">Privacy Policy</a>
-        <a href="/term-condition" class="hover:text-gray-600 transition-colors">Terms</a>
       </div>
     </div>
-  </footer>
-
-  <BrandingLogo />
-</body>
-</html>
+  </section>
+</div>
+</Site>
