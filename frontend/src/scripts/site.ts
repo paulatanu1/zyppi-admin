@@ -114,11 +114,27 @@ form?.addEventListener('submit', async (e) => {
   }
 });
 
+/* ---------- phone menu ---------- */
+(() => {
+  const btn = $('menuBtn'), top = document.querySelector<HTMLElement>('.top'); if (!btn || !top) return;
+  const set = (open: boolean) => {
+    top.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  };
+  btn.addEventListener('click', () => set(!top.classList.contains('open')));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && top.classList.contains('open')) { set(false); btn.focus(); } });
+  document.addEventListener('click', (e) => { if (top.classList.contains('open') && !top.contains(e.target as Node)) set(false); });
+  $('mainNav')?.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('a')) set(false); });
+  window.matchMedia?.('(min-width: 761px)').addEventListener?.('change', (m) => { if (m.matches) set(false); });
+})();
+
 /* ---------- scrolling helpers ---------- */
 document.querySelectorAll<HTMLElement>('[data-scroll]').forEach((b) => b.addEventListener('click', () => {
   document.getElementById(b.dataset.scroll || '')?.scrollIntoView({ behavior: 'smooth' });
 }));
 $('getApp')?.addEventListener('click', () => {
+  document.querySelector('.top')?.classList.remove('open'); $('menuBtn')?.setAttribute('aria-expanded', 'false');
   const g = document.querySelectorAll<HTMLElement>('.get');
   const el = g[g.length - 1] || g[0];
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); else location.href = '/#get';

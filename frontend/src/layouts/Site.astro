@@ -59,7 +59,7 @@ const nav = [
   <header class="top gutter">
     <div class="wrap">
       <a class="logo" href="/" aria-label="Zyppi home"><b></b>zyppi</a>
-      <nav aria-label="Main">
+      <nav aria-label="Main" id="mainNav">
         {nav.map((n) => (
           <a href={n.href} class={active === n.key ? 'on' : undefined} aria-current={active === n.key ? 'page' : undefined} data-en={n.en} data-bn={n.bn}>{n.en}</a>
         ))}
@@ -67,6 +67,7 @@ const nav = [
       <button class="theme" id="theme" type="button" aria-label="Switch to dark mode"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path id="themeIcon" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg></button>
       <button class="lang" id="lang" type="button" aria-label="Switch language">বাংলা</button>
       <button class="pillbtn" id="getApp" type="button" data-en="Get the app" data-bn="অ্যাপ নিন">Get the app</button>
+      <button class="menu" id="menuBtn" type="button" aria-controls="mainNav" aria-expanded="false" aria-label="Open menu"><span></span><span></span></button>
     </div>
   </header>
 

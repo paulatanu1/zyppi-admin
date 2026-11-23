@@ -251,7 +251,15 @@ function start() {
       vw = window.innerWidth; vh = window.innerHeight; isPhone = vw < 900;
       renderer.setSize(vw, vh, false); camera.aspect = vw / vh; camera.updateProjectionMatrix();
       const hh = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z, hw = hh * camera.aspect;
-      if (isPhone) { baseScale = Math.min(hw / 2.6, hh / 5.4); stage.position.set(0, hh * 0.4, 0); }
+      if (isPhone) {
+        // Centre the cluster on the hero's visual box (below the header), sized to fit inside it.
+        const box = document.querySelector('.hero .visual')?.getBoundingClientRect();
+        if (box && box.height > 0) {
+          const cy = box.top + window.scrollY + box.height / 2;
+          baseScale = Math.min(hw / 2.5, (2 * hh * box.height / vh) / 4.7);
+          stage.position.set(0, (1 - (2 * cy) / vh) * hh, 0);
+        } else { baseScale = Math.min(hw / 2.6, hh / 5.4); stage.position.set(0, hh * 0.4, 0); }
+      }
       else { const wrapW = Math.min(1200, vw - 48), wrapL = (vw - wrapW) / 2, cx = (wrapL + wrapW * 0.8) / vw; baseScale = Math.min(hh / 3.3, hw / 4.1); stage.position.set((cx * 2 - 1) * hw - 0.3 * baseScale, -hh * 0.02, 0); }
       stage.scale.setScalar(baseScale); baseX = stage.position.x;
     }
