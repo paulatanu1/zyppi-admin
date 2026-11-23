@@ -1,0 +1,92 @@
+---
+import Site from '../layouts/Site.astro';
+---
+<Site title="Deliver with Zyppi — ride your own hours in Chelyama" description="Become a Zyppi delivery partner in Chelyama. Go online when it suits you and get paid every week. Register at admin.zyppi.in/rider." path="/deliver" active="deliver" scenes={true}>
+<div class="page" data-page="deliver">
+  <section class="hero gutter">
+    <div class="wrap grid">
+      <div class="copy">
+        <span class="kicker"><i></i><span data-en="For delivery partners" data-bn="ডেলিভারি পার্টনারদের জন্য">For delivery partners</span></span>
+        <h1>
+          <span class="line"><span data-en="Ride your" data-bn="নিজের সময়ে">Ride your</span></span>
+          <span class="line"><span data-en="own hours" data-bn="চেলিয়ামায়">own hours</span></span>
+          <span class="line"><span class="pink" data-en="in Chelyama." data-bn="ডেলিভারি করুন।">in Chelyama.</span></span>
+        </h1>
+        <p class="lead" data-en="Go online when it suits you, pick up orders from the Zyppi store and nearby shops, and deliver around the town you know. Paid every week." data-bn="সুবিধামতো অনলাইন হন, Zyppi স্টোর ও কাছের দোকান থেকে অর্ডার নিন, চেনা শহরেই ডেলিভারি দিন। প্রতি সপ্তাহে পেমেন্ট।">Go online when it suits you, pick up orders from the Zyppi store and nearby shops, and deliver around the town you know. Paid every week.</p>
+        <div class="ctas anim get">
+          <a class="bigbtn" href="https://admin.zyppi.in/rider" target="_blank" rel="noopener"><span data-en="Register as a rider" data-bn="রাইডার হিসেবে রেজিস্টার করুন">Register as a rider</span> <span class="arr" aria-hidden="true">→</span></a>
+          <button class="ghost" type="button" data-scroll="need"><span data-en="What you need" data-bn="কী লাগবে">What you need</span> <span class="arr" aria-hidden="true">↓</span></button>
+        </div>
+      </div>
+      <div class="visual" aria-hidden="true"><canvas data-scene="deliver"></canvas></div>
+    </div>
+  </section>
+
+  <section class="sec tight gutter">
+    <div class="wrap grid">
+      <h2 class="sec-title" data-en="Why riders choose Zyppi." data-bn="রাইডাররা কেন Zyppi বেছে নেন।">Why riders choose Zyppi.</h2>
+      <div class="bento">
+        <article class="tile w7">
+          <h3 data-en="Go online any time." data-bn="যখন খুশি অনলাইন।">Go online any time.</h3>
+          <p data-en="Swipe online when you are free, or book a gig slot to get orders first and an on-time bonus." data-bn="ফ্রি থাকলে সোয়াইপ করে অনলাইন হন, বা গিগ স্লট বুক করে আগে অর্ডার আর সময়মতো বোনাস পান।">Swipe online when you are free, or book a gig slot to get orders first and an on-time bonus.</p>
+          <div class="demo"><button class="toggle" type="button" id="onlineToggle" aria-pressed="false"><span class="knob" aria-hidden="true"></span><span id="onlineLabel" data-en="Offline" data-bn="অফলাইন">Offline</span></button></div>
+        </article>
+        <article class="tile w5">
+          <h3 data-en="Paid every week." data-bn="প্রতি সপ্তাহে পেমেন্ট।">Paid every week.</h3>
+          <p data-en="Your earnings and tips go to your bank account or UPI every week." data-bn="আয় আর টিপস প্রতি সপ্তাহে আপনার ব্যাংক বা UPI-তে।">Your earnings and tips go to your bank account or UPI every week.</p>
+          <div class="demo" aria-hidden="true"><div class="week"><span class="pay" data-en="M" data-bn="সো">M</span><span data-en="T" data-bn="ম">T</span><span data-en="W" data-bn="বু">W</span><span data-en="T" data-bn="বৃ">T</span><span data-en="F" data-bn="শু">F</span><span data-en="S" data-bn="শ">S</span><span data-en="S" data-bn="র">S</span></div></div>
+        </article>
+        <article class="tile w5">
+          <h3 data-en="Short trips." data-bn="ছোট দূরত্ব।">Short trips.</h3>
+          <p data-en="Orders come from the store close to you and go to streets you know." data-bn="অর্ডার আসে কাছের দোকান থেকে, যায় চেনা রাস্তায়।">Orders come from the store close to you and go to streets you know.</p>
+          <div class="demo track" aria-hidden="true">
+            <svg viewBox="0 0 420 170"><path d="M20 120 C 120 120, 140 40, 230 50 S 340 120, 400 60" fill="none" stroke="#D9D9E0" stroke-width="10" stroke-linecap="round"/><g transform="translate(6 106)"><rect width="28" height="28" rx="8" fill="#0B0B10"/><path d="M7 12l1.5-5h11L21 12M7 12v9h14v-9M7 12h14" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></g><g transform="translate(386 44)"><rect width="28" height="28" rx="8" fill="#D4127B"/><path d="M7 15l7-6 7 6v7H7z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></g><circle r="15" fill="#673AB7" opacity=".2"><animateMotion dur="4.5s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.75;1" calcMode="spline" keySplines=".45 0 .2 1;0 0 1 1" path="M34 120 C 120 120, 140 40, 230 50 S 340 120, 386 66"/></circle><circle r="8" fill="#673AB7" stroke="#fff" stroke-width="2.5"><animateMotion dur="4.5s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.75;1" calcMode="spline" keySplines=".45 0 .2 1;0 0 1 1" path="M34 120 C 120 120, 140 40, 230 50 S 340 120, 386 66"/></circle></svg>
+          </div>
+        </article>
+        <article class="tile w7">
+          <h3 data-en="Help at the press of a button." data-bn="এক বোতামে সাহায্য।">Help at the press of a button.</h3>
+          <p data-en="Hold the SOS button and our team gets your location, any time you are online." data-bn="SOS বোতাম চেপে ধরুন, অনলাইন থাকাকালীন যেকোনো সময় আপনার লোকেশন আমাদের টিমে পৌঁছায়।">Hold the SOS button and our team gets your location, any time you are online.</p>
+          <div class="demo" style="min-height:210px">
+            <button class="sos" type="button" id="sos" aria-describedby="sosmsg">SOS<svg viewBox="0 0 132 132" aria-hidden="true"><circle cx="66" cy="66" r="62"/></svg></button>
+            <span class="sosmsg" id="sosmsg" data-en="Press and hold" data-bn="চেপে ধরে রাখুন">Press and hold</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec tight gutter" id="need">
+    <div class="wrap grid">
+      <h2 class="sec-title" data-en="What you need." data-bn="যা লাগবে।">What you need.</h2>
+      <div class="checks">
+        <div class="ck"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span data-en="An Android smartphone" data-bn="অ্যান্ড্রয়েড স্মার্টফোন">An Android smartphone</span></div>
+        <div class="ck"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span data-en="A driving licence" data-bn="ড্রাইভিং লাইসেন্স">A driving licence</span></div>
+        <div class="ck"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span data-en="Vehicle registration (RC)" data-bn="গাড়ির রেজিস্ট্রেশন (RC)">Vehicle registration (RC)</span></div>
+        <div class="ck"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span data-en="An Aadhaar card" data-bn="আধার কার্ড">An Aadhaar card</span></div>
+        <div class="ck"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span data-en="A bank account or UPI ID" data-bn="ব্যাংক অ্যাকাউন্ট বা UPI আইডি">A bank account or UPI ID</span></div>
+        <div class="ck"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span data-en="The legal age to ride" data-bn="বাইক চালানোর আইনি বয়স">The legal age to ride</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec tight gutter">
+    <div class="wrap grid">
+      <h2 class="sec-title" data-en="From sign-up to first ride." data-bn="রেজিস্ট্রেশন থেকে প্রথম রাইড।">From sign-up to first ride.</h2>
+      <div class="flow three">
+        <div class="fl"><h3 data-en="Register online" data-bn="অনলাইনে রেজিস্টার">Register online</h3><p><span data-en="Fill in the form with your details and documents at" data-bn="আপনার তথ্য ও নথি দিয়ে ফর্ম পূরণ করুন:">Fill in the form with your details and documents at</span> <a href="https://admin.zyppi.in/rider" target="_blank" rel="noopener">admin.zyppi.in/rider</a></p></div>
+        <div class="fl"><h3 data-en="Get verified" data-bn="যাচাই">Get verified</h3><p data-en="Our team checks your documents and lets you know." data-bn="আমাদের টিম নথি যাচাই করে আপনাকে জানাবে।">Our team checks your documents and lets you know.</p></div>
+        <div class="fl"><h3 data-en="Go online" data-bn="অনলাইন হন">Go online</h3><p data-en="Install Zyppi Delivery, swipe online and take your first order." data-bn="Zyppi Delivery ইনস্টল করুন, সোয়াইপ করে অনলাইন হন, প্রথম অর্ডার নিন।">Install Zyppi Delivery, swipe online and take your first order.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final gutter">
+    <div class="wrap grid">
+      <h2><span data-en="Chelyama is waiting" data-bn="চেলিয়ামা অপেক্ষায়">Chelyama is waiting</span> <em data-en="for your first ride." data-bn="আপনার প্রথম রাইডের।">for your first ride.</em></h2>
+      <div class="ctas get">
+        <a class="bigbtn" href="https://admin.zyppi.in/rider" target="_blank" rel="noopener"><span data-en="Register as a rider" data-bn="রাইডার হিসেবে রেজিস্টার করুন">Register as a rider</span> <span class="arr" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+</Site>
