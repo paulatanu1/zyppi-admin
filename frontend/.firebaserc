@@ -1,0 +1,4 @@
+{
+  "projects": { "default": "zippy-app-2024" },
+  "targets": { "zippy-app-2024": { "hosting": { "website": ["zyppi-web"] } } }
+}
